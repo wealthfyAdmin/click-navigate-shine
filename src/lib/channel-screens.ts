@@ -141,7 +141,7 @@ export const V: Record<string, Renderer> = {
         ['<span class="mono">PRJ-2201</span>', "Kohinoor Textiles", money(460000), money(69000), '<span class="pill p-mute">In delivery</span>', "On sign-off",
           `<a class="btn-cp sm" href="/app/ops/o-proj?ctx=PRJ-2201">Track</a>`],
         ['<span class="mono">PRJ-2185</span>', "Bluewave Logistics", money(145000), money(21750), '<span class="pill p-bad">Payment overdue</span>', "On realisation",
-          linkBtn("accounts", "a-inv", "Chase")],
+          linkBtn("accounts", "a-chase", "Chase", "btn-cp danger sm", "INV-4361")],
       ])}
     </div>`,
 
