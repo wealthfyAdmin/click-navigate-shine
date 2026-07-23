@@ -144,7 +144,7 @@ export const ROLES: Record<RoleKey, { label: string; who: [string, string, strin
     ["Earn", [["p-earn", "Earnings & payouts", 1], ["p-score", "My scorecard", 1]]] ]},
   sales: { label: "Sales", who: ["SK", "Suresh Kadam", "Channel Sales · West"], nav: [
     ["Coverage", [["s-cov", "Partner coverage"]]],
-    ["Queues", [["s-conf", "Conflicts & registrations", 1], ["s-qual", "Partner quality board", 1]]] ]},
+    ["Queues", [["s-qual", "Partner quality board", 1]]] ]},
   ops: { label: "Ops / PM", who: ["RK", "Rohit Kale", "Operations & delivery"], nav: [
     ["Delivery", [["o-board", "Delivery board", 1], ["o-unalloc", "Unallocated wins", 1], ["o-proj", "Project detail", 1]]],
     ["Capacity", [["o-res", "Resource calendar", 1], ["o-esc", "Escalations", 1]]] ]},
