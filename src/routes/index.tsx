@@ -6,8 +6,8 @@ export const Route = createFileRoute("/")({
     meta: [
       { title: "Channel Platform — Lead to Delivery, One Screen" },
       { name: "description", content: "A single system connecting Admin, Sales, Channel Partners, Clients, Delivery, Operations and Accounts on one transparent workflow." },
-      { property: "og:title", content: "Channel Platform — Lead to Delivery" },
-      { property: "og:description", content: "One record, eight roles. From lead to sign-off, everyone sees the same truth." },
+      { property: "og:title", content: "Channel Platform — Lead to Delivery, One Screen" },
+      { property: "og:description", content: "A single system connecting Admin, Sales, Channel Partners, Clients, Delivery, Operations and Accounts on one transparent workflow." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],

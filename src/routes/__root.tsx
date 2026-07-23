@@ -77,8 +77,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Channel Partner Platform" },
-      { name: "description", content: "Lead → Deal → PO → Delivery → Completion. One record, eight roles, zero silos." },
+      { title: "Channel Platform — Lead to Delivery, One Screen" },
+      { name: "description", content: "A single system connecting Admin, Sales, Channel Partners, Clients, Delivery, Operations and Accounts on one transparent workflow." },
+      { property: "og:title", content: "Channel Platform — Lead to Delivery, One Screen" },
+      { name: "twitter:title", content: "Channel Platform — Lead to Delivery, One Screen" },
+      { property: "og:description", content: "A single system connecting Admin, Sales, Channel Partners, Clients, Delivery, Operations and Accounts on one transparent workflow." },
+      { name: "twitter:description", content: "A single system connecting Admin, Sales, Channel Partners, Clients, Delivery, Operations and Accounts on one transparent workflow." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/656ffee2-869f-4fd9-a1fb-d76d4bb0fb2e/id-preview-e018953f--7929f87d-3147-4c1d-8fee-0757e7060bc3.lovable.app-1784799554436.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/656ffee2-869f-4fd9-a1fb-d76d4bb0fb2e/id-preview-e018953f--7929f87d-3147-4c1d-8fee-0757e7060bc3.lovable.app-1784799554436.png" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:type", content: "website" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
