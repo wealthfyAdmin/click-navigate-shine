@@ -165,12 +165,20 @@ function WirePage() {
           </div>
         </div>
 
+        {/* SVG connection canvas — the actual wire diagram with lines */}
+        <div className="card-cp" style={{ marginBottom: 20 }}>
+          <h3>Connection canvas</h3>
+          <div className="sub">Roles on the left, screens in the middle, data sources on the right. Every line is a real wire in the app.</div>
+          <ConnectionCanvas />
+        </div>
+
         {/* Visual role → screen node graph */}
         <div className="card-cp" style={{ marginBottom: 20 }}>
           <h3>Role → Screen graph</h3>
           <div className="sub">Every screen the role can open from the sidebar</div>
           <RoleScreenGraph />
         </div>
+
 
         {/* Data source → screens */}
         <div className="card-cp" style={{ marginBottom: 20 }}>
