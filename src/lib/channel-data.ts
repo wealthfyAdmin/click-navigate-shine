@@ -173,6 +173,8 @@ export const SCREEN_TITLES: Record<string, string> = {
   "o-res": "Ops · Resources", "o-esc": "Ops · Escalations",
   "d-assign": "Delivery · Assignments", "d-effort": "Delivery · Effort", "d-report": "Delivery · Report",
   "a-inv": "Accounts · Invoices", "a-cred": "Accounts · Credit ledger", "a-pay": "Accounts · Payout run",
+  "a-chase": "Accounts · Chase overdue", "a-raise": "Accounts · Raise invoice",
+  "d-log": "Delivery · Log time", "d-complete": "Delivery · Request report",
   "c-dash": "Client · Overview", "c-proj": "Client · Projects",
   "x-over": "Admin · Platform overview", "x-exc": "Admin · Exceptions",
   "v-cat": "Vendor · Catalogue",
