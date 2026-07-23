@@ -487,6 +487,115 @@ export const V: Record<string, Renderer> = {
       ])
     )}
     <div class="note" style="margin-top:12px">Partners never see the layer above their own transfer price. Certification-gated lines cannot be added to a proposal until the partner's learning path is complete.</div></div>`,
+
+  // ---- ACTION FLOW PAGES ----
+  "a-raise": ({ ctx }) => {
+    const i = S.invoices.find(x => x.id === ctx) || S.invoices.find(x => x.st === "Ready to raise")!;
+    const done = i.st !== "Ready to raise";
+    return subhead("Raise invoice", `${i.id} · ${i.cust}`, "accounts", "a-inv", "Invoice queue") + `
+    <div class="grid-cp g21">
+      <div class="card-cp"><h3>Confirm details</h3><div class="sub">GST-compliant invoice will be generated and dispatched.</div>
+        ${kvRows([["Invoice", i.id],["Customer", i.cust],["Project", `<a class="mono" href="/app/ops/o-proj?ctx=${i.prj}">${i.prj}</a>`],["Amount", money(i.amt)],["Trigger", "Customer sign-off complete"],["GSTIN", "27AABCK1234M1ZP"],["Payment terms", "Net 30"]])}
+        <div class="row" style="margin-top:14px">
+          ${done ? `<span class="pill p-good">Invoice raised · ${i.age}</span> ${linkBtn("accounts","a-inv","Back to queue","btn-cp sm")}`
+                 : actBtn("raiseInv", `'${i.id}'`, "Raise invoice now", "btn-cp pri")}
+          ${!done ? linkBtn("accounts","a-inv","Cancel","btn-cp sm") : ""}
+        </div>
+      </div>
+      <div class="card-cp"><h3>What happens next</h3>
+        <div class="stack" style="font-size:12.5px">
+          ${feed("info","Invoice PDF generated","Sent to " + i.cust + " AP contact and CC'd to partner")}
+          ${feed("info","Partner margin accrued","₹" + Math.round((typeof i.amt==="number"?i.amt:460000)*0.15).toLocaleString("en-IN") + " moves to payout accrual")}
+          ${feed("warn","Ageing clock starts","Due 30 days; reminders at 7 / 14 / 25 days")}
+        </div></div>
+    </div>`;
+  },
+
+  "a-chase": ({ ctx }) => {
+    const i = S.invoices.find(x => x.id === ctx) || S.invoices.find(x => x.st === "Overdue")!;
+    return subhead("Chase overdue payment", `${i.id} · ${i.cust} · ${i.age}`, "accounts", "a-inv", "Invoice queue") + `
+    <div class="grid-cp g21">
+      <div class="card-cp"><h3>Send reminder</h3><div class="sub">A copy goes to the partner owner so nobody chases twice.</div>
+        ${kvRows([["Invoice", i.id],["Amount", money(i.amt)],["Overdue by", i.age],["AP contact", i.cust.split(" ")[0].toLowerCase() + ".ap@" + i.cust.split(" ")[0].toLowerCase() + ".com"],["Partner owner", "Amit Deshpande"]])}
+        <div style="margin-top:12px">
+          <div class="k faint">Reminder tone</div>
+          <div class="row" style="margin-top:6px">
+            <button class="btn-cp sm" onclick="window.__cp.toast('Tone set','Firm')">Firm</button>
+            <button class="btn-cp sm pri" onclick="window.__cp.toast('Tone set','Standard')">Standard</button>
+            <button class="btn-cp sm" onclick="window.__cp.toast('Tone set','Escalation')">Escalation notice</button>
+          </div>
+        </div>
+        <div class="row" style="margin-top:14px">
+          ${actBtn("chase", `'${i.cust}'`, "Send reminder now", "btn-cp pri")}
+          ${linkBtn("accounts","a-inv","Back","btn-cp sm")}
+        </div>
+      </div>
+      <div class="card-cp"><h3>History</h3>
+        ${table(["When","Action","By"],[
+          ["21 Jul","Statement of account sent","System"],
+          ["14 Jul","Reminder 2 · standard","Meera Joshi"],
+          ["01 Jul","Reminder 1 · standard","System"],
+          ["18 Jun","Invoice raised","Meera Joshi"],
+        ])}</div>
+    </div>`;
+  },
+
+  "d-log": ({ ctx }) => {
+    const pid = ctx || "PRJ-2201";
+    return subhead("Log time", `${pid} · book hours against a task`, "delivery", "d-effort", "Effort & evidence") + `
+    <div class="grid-cp g21">
+      <div class="card-cp"><h3>New effort entry</h3><div class="sub">Updates utilisation and true project cost the moment you submit.</div>
+        <div class="formgrid">
+          <label>Project<div class="input mono">${pid}</div></label>
+          <label>Consultant<div class="input">Sneha Patil</div></label>
+          <label>Date<div class="input">23 Jul 2026</div></label>
+          <label>Hours<div class="input">6.0</div></label>
+          <label style="grid-column:1/-1">Task<div class="input">API authorisation testing — role matrix</div></label>
+          <label style="grid-column:1/-1">Notes<div class="input" style="min-height:70px">Verified horizontal privilege escalation on /api/v2/orders; evidence attached to finding F-018.</div></label>
+        </div>
+        <div class="row" style="margin-top:14px">
+          ${actBtn("logEffort", "", "Book 6 hours", "btn-cp pri")}
+          ${linkBtn("delivery","d-effort","Cancel","btn-cp sm")}
+        </div>
+      </div>
+      <div class="card-cp"><h3>Impact preview</h3>
+        <div class="stack" style="font-size:12.5px">
+          ${feed("info","Utilisation","Sneha Patil this week: 91% → 106%")}
+          ${feed("warn","Budget","PRJ-2201 effort 18 → 18.75 of 24 person-days")}
+          ${feed("good","Traceable","Booked against milestone 'API testing'")}
+        </div></div>
+    </div>`;
+  },
+
+  "d-complete": ({ ctx }) => {
+    const p = prj(ctx || "PRJ-2201") || S.projects[0];
+    const done = p.state !== "In progress" && p.state !== "At risk";
+    return subhead("Mark testing complete & request report", `${p.id} · ${p.cust}`, "ops", "o-proj", "Project detail") + `
+    <div class="grid-cp g21">
+      <div class="card-cp"><h3>Pre-flight checklist</h3><div class="sub">The report cannot be released to the customer until Ops approves it.</div>
+        ${kvRows([
+          ["All testing milestones done", '<span class="pill p-good">Yes</span>'],
+          ["Findings register frozen", `<span class="pill p-good">${p.find ? p.find.crit + p.find.high + p.find.med + p.find.low : 27} findings</span>`],
+          ["Evidence attached", '<span class="pill p-good">3 of 3 critical</span>'],
+          ["Customer dependencies", p.dep.some(d => d.s.startsWith("open")) ? '<span class="pill p-warn">1 open — recorded against customer</span>' : '<span class="pill p-good">Clear</span>'],
+          ["Draft version", "v0.3 · Sneha Patil"],
+          ["Reviewer", "Rohit Kale · Ops"],
+        ])}
+        <div class="row" style="margin-top:14px">
+          ${done ? `<span class="pill p-info">${p.state}</span> ${linkBtn("ops","o-proj","Back to project","btn-cp sm",p.id)}`
+                 : actBtn("submitReport", `'${p.id}'`, "Submit for internal review", "btn-cp pri")}
+          ${!done ? linkBtn("ops","o-proj","Cancel","btn-cp sm",p.id) : ""}
+        </div>
+      </div>
+      <div class="card-cp"><h3>What happens next</h3>
+        <div class="stack" style="font-size:12.5px">
+          ${feed("info","Status changes to 'Under review'","Customer sees nothing until Rohit Kale approves")}
+          ${feed("info","Reviewer notified","SLA: 24h for comments or release")}
+          ${feed("good","On approval","Report + retest window go to " + p.cust + " via partner")}
+          ${feed("warn","Invoice trigger","Only fires on customer sign-off, not release")}
+        </div></div>
+    </div>`;
+  },
 };
 
 export function renderScreen(screen: string, role: RoleKey, ctx?: string): string {
