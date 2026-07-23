@@ -108,7 +108,7 @@ function PartnerCharts() {
     <div className="grid-cp g2" style={{ marginTop: 14 }}>
       <ChartCard title="Credit wallet composition" sub="Where your ₹20 L allocation actually sits">
         <PieChart>
-          <Pie data={wallet} dataKey="value" cx="50%" cy="50%" innerRadius={55} outerRadius={90} paddingAngle={3}>
+          <Pie data={wallet} dataKey="value" cx="50%" cy="50%" innerRadius={55} outerRadius={90} paddingAngle={3} isAnimationActive={false} label>
             {wallet.map((_, i) => <Cell key={i} fill={COLORS[i]} />)}
           </Pie>
           <Tooltip formatter={(v: any) => "₹" + (v as number).toLocaleString("en-IN")} />
