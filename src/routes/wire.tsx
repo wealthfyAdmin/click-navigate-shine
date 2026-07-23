@@ -313,3 +313,159 @@ function RoleScreenGraph() {
     </div>
   );
 }
+
+/* ============================================================
+   ConnectionCanvas — three columns of nodes with SVG bezier
+   lines wiring Role → Screen → Data source.
+   ============================================================ */
+function ConnectionCanvas() {
+  const roles = Object.keys(ROLES) as RoleKey[];
+
+  // Collect distinct screens in the same order roles present them.
+  const screenSet: string[] = [];
+  const roleToScreens: Record<string, string[]> = {};
+  roles.forEach(r => {
+    const list = ROLES[r].nav.flatMap(([, items]) => items.map(([id]) => id));
+    roleToScreens[r] = list;
+    list.forEach(s => { if (!screenSet.includes(s)) screenSet.push(s); });
+  });
+
+  // screen → data sources (invert DATA_SOURCES.drives)
+  const screenToData: Record<string, string[]> = {};
+  DATA_SOURCES.forEach(d => {
+    d.drives.forEach(s => {
+      const key = s.split(" ")[0]; // strip suffix like "(charts)"
+      (screenToData[key] ||= []).push(d.name);
+    });
+  });
+
+  // Layout
+  const W = 1100;
+  const rowH = 34;
+  const gap = 8;
+  const colX = { role: 20, screen: 460, data: 900 };
+  const nodeW = { role: 180, screen: 260, data: 190 };
+  const H = Math.max(roles.length, screenSet.length, DATA_SOURCES.length) * (rowH + gap) + 40;
+
+  const roleY = (i: number) => 24 + i * (rowH + gap) + rowH / 2;
+  const screenY = (i: number) => 24 + i * (rowH + gap) + rowH / 2;
+  const dataY = (i: number) => 24 + i * (rowH + gap) + rowH / 2;
+
+  const screenIdx: Record<string, number> = {};
+  screenSet.forEach((s, i) => (screenIdx[s] = i));
+  const dataIdx: Record<string, number> = {};
+  DATA_SOURCES.forEach((d, i) => (dataIdx[d.name] = i));
+
+  // Build lines
+  const roleLines: { x1: number; y1: number; x2: number; y2: number; key: string }[] = [];
+  roles.forEach((r, ri) => {
+    roleToScreens[r].forEach(s => {
+      roleLines.push({
+        x1: colX.role + nodeW.role, y1: roleY(ri),
+        x2: colX.screen, y2: screenY(screenIdx[s]),
+        key: `${r}-${s}`,
+      });
+    });
+  });
+
+  const dataLines: { x1: number; y1: number; x2: number; y2: number; key: string }[] = [];
+  screenSet.forEach(s => {
+    (screenToData[s] || []).forEach(dn => {
+      if (dataIdx[dn] === undefined) return;
+      dataLines.push({
+        x1: colX.screen + nodeW.screen, y1: screenY(screenIdx[s]),
+        x2: colX.data, y2: dataY(dataIdx[dn]),
+        key: `${s}-${dn}`,
+      });
+    });
+  });
+
+  const roleColor = (r: RoleKey) => ({
+    partner: "#2B59FF", sales: "#6E7BFF", ops: "#12A46A", delivery: "#0EA5E9",
+    accounts: "#D99A24", client: "#E88A0C", admin: "#E0483B", vendor: "#8B5CF6",
+  } as Record<RoleKey, string>)[r];
+
+  const curve = (x1: number, y1: number, x2: number, y2: number) => {
+    const dx = (x2 - x1) * 0.5;
+    return `M${x1},${y1} C${x1 + dx},${y1} ${x2 - dx},${y2} ${x2},${y2}`;
+  };
+
+  return (
+    <div style={{ overflowX: "auto", marginTop: 14, background: "linear-gradient(180deg,#F7F9FC, #EEF2F7)", borderRadius: 12, padding: 12 }}>
+      <svg width={W} height={H} style={{ display: "block", minWidth: W }}>
+        <defs>
+          <linearGradient id="wireA" x1="0" x2="1">
+            <stop offset="0%" stopColor="#2B59FF" stopOpacity="0.55" />
+            <stop offset="100%" stopColor="#6E7BFF" stopOpacity="0.35" />
+          </linearGradient>
+          <linearGradient id="wireB" x1="0" x2="1">
+            <stop offset="0%" stopColor="#D99A24" stopOpacity="0.55" />
+            <stop offset="100%" stopColor="#E88A0C" stopOpacity="0.3" />
+          </linearGradient>
+        </defs>
+
+        {/* column headers */}
+        <text x={colX.role} y={16} fontSize="10" fontWeight="700" fill="#5B6B7E" letterSpacing="1">ROLES</text>
+        <text x={colX.screen} y={16} fontSize="10" fontWeight="700" fill="#5B6B7E" letterSpacing="1">SCREENS</text>
+        <text x={colX.data} y={16} fontSize="10" fontWeight="700" fill="#5B6B7E" letterSpacing="1">DATA SOURCES</text>
+
+        {/* wires first (behind nodes) */}
+        {roleLines.map(l => (
+          <path key={l.key} d={curve(l.x1, l.y1, l.x2, l.y2)} stroke="url(#wireA)" strokeWidth="1.5" fill="none" />
+        ))}
+        {dataLines.map(l => (
+          <path key={l.key} d={curve(l.x1, l.y1, l.x2, l.y2)} stroke="url(#wireB)" strokeWidth="1.2" fill="none" strokeDasharray="4 3" />
+        ))}
+
+        {/* role nodes */}
+        {roles.map((r, i) => (
+          <g key={r}>
+            <rect x={colX.role} y={roleY(i) - rowH / 2} width={nodeW.role} height={rowH} rx={9}
+              fill="#0B1A2E" stroke={roleColor(r)} strokeWidth="1.5" />
+            <circle cx={colX.role + 16} cy={roleY(i)} r={6} fill={roleColor(r)} />
+            <text x={colX.role + 30} y={roleY(i) + 4} fontSize="12" fontWeight="700" fill="#fff" fontFamily="Space Grotesk">
+              {ROLES[r].label}
+            </text>
+            <text x={colX.role + nodeW.role - 10} y={roleY(i) + 4} fontSize="10" fill="#8DA0BB" textAnchor="end">
+              {roleToScreens[r].length} screens
+            </text>
+          </g>
+        ))}
+
+        {/* screen nodes */}
+        {screenSet.map((s, i) => {
+          const owningRole = (Object.keys(roleToScreens) as RoleKey[]).find(r => roleToScreens[r].includes(s)) || "partner";
+          return (
+            <g key={s} style={{ cursor: "pointer" }} onClick={() => (window.location.href = `/app/${owningRole}/${s}`)}>
+              <rect x={colX.screen} y={screenY(i) - rowH / 2} width={nodeW.screen} height={rowH} rx={9}
+                fill="#fff" stroke="var(--line)" strokeWidth="1" />
+              <rect x={colX.screen} y={screenY(i) - rowH / 2} width={4} height={rowH} rx={2} fill={roleColor(owningRole)} />
+              <text x={colX.screen + 14} y={screenY(i) + 4} fontSize="11.5" fontWeight="600" fill="#0E1C2B">
+                {SCREEN_TITLES[s] || s}
+              </text>
+              <text x={colX.screen + nodeW.screen - 10} y={screenY(i) + 4} fontSize="10" fill="#8A98A8" textAnchor="end" fontFamily="Space Grotesk">
+                {s}
+              </text>
+            </g>
+          );
+        })}
+
+        {/* data nodes */}
+        {DATA_SOURCES.map((d, i) => (
+          <g key={d.name}>
+            <rect x={colX.data} y={dataY(i) - rowH / 2} width={nodeW.data} height={rowH} rx={9}
+              fill="#FBF1DD" stroke="#D99A24" strokeWidth="1" />
+            <text x={colX.data + 12} y={dataY(i) + 4} fontSize="11.5" fontWeight="700" fill="#7A5410" fontFamily="Space Grotesk">
+              {d.name}
+            </text>
+          </g>
+        ))}
+      </svg>
+      <div className="legend" style={{ marginTop: 10 }}>
+        <span><i style={{ background: "#2B59FF" }} />Solid line — role opens screen from its sidebar</span>
+        <span><i style={{ background: "#D99A24" }} />Dashed line — screen reads/writes this data source</span>
+        <span className="faint">Click any screen node to open it</span>
+      </div>
+    </div>
+  );
+}
