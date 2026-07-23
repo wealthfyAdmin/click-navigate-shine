@@ -6,6 +6,10 @@ import { S, ROLES, money, lakh, prj, type RoleKey } from "./channel-data";
 
 const head = (t: string, s: string) =>
   `<div class="phead"><div><h1>${t}</h1><p>${s}</p></div><div class="sp"></div></div>`;
+const subhead = (t: string, s: string, backRole: RoleKey, backScreen: string, backLabel: string) =>
+  `<div class="phead subhead"><div><div class="crumb"><a href="/app/${backRole}/${backScreen}">← ${backLabel}</a></div><h1>${t}</h1><p>${s}</p></div><div class="sp"></div></div>`;
+const kvRows = (rows: [string, string | number][]) =>
+  `<div class="kv">${rows.map(([k, v]) => `<div class="kvrow"><span class="kvk">${k}</span><span class="kvv">${v}</span></div>`).join("")}</div>`;
 const kpi = (k: string, v: string, d: string) =>
   `<div class="card-cp kpi"><div class="k">${k}</div><div class="v">${v}</div><div class="d">${d}</div></div>`;
 const feed = (kind: string, t: string, s: string) => {
