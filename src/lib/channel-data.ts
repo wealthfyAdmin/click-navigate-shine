@@ -168,7 +168,7 @@ export const TRACE: Record<RoleKey, string> = {
 export const SCREEN_TITLES: Record<string, string> = {
   "p-dash": "Partner · Dashboard", "p-pipe": "Partner · Pipeline", "p-del": "Partner · Deliveries",
   "p-earn": "Partner · Earnings", "p-score": "Partner · Scorecard",
-  "s-cov": "Sales · Coverage", "s-conf": "Sales · Conflicts", "s-qual": "Sales · Quality board",
+  "s-cov": "Sales · Coverage", "s-qual": "Sales · Quality board",
   "o-board": "Ops · Delivery board", "o-unalloc": "Ops · Unallocated wins", "o-proj": "Ops · Project detail",
   "o-res": "Ops · Resources", "o-esc": "Ops · Escalations",
   "d-assign": "Delivery · Assignments", "d-effort": "Delivery · Effort", "d-report": "Delivery · Report",
