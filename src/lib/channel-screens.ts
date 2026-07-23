@@ -363,8 +363,8 @@ export const V: Record<string, Renderer> = {
         `<a class="mono" href="/app/ops/o-proj?ctx=${i.prj}">${i.prj}</a>`,
         money(i.amt),
         `<span class="pill ${i.st === "Ready to raise" ? "p-warn" : i.st === "Overdue" ? "p-bad" : i.st === "Raised" ? "p-info" : "p-mute"}">${i.st}</span>`, i.age,
-        i.st === "Ready to raise" ? actBtn("raiseInv", `'${i.id}'`, "Raise invoice", "btn-cp pri sm")
-          : i.st === "Overdue" ? actBtn("chase", `'${i.cust}'`, "Chase", "btn-cp danger sm")
+        i.st === "Ready to raise" ? linkBtn("accounts", "a-raise", "Raise invoice", "btn-cp pri sm", i.id)
+          : i.st === "Overdue" ? linkBtn("accounts", "a-chase", "Chase", "btn-cp danger sm", i.id)
           : '<span class="faint">—</span>',
       ])
     )}</div>`,
