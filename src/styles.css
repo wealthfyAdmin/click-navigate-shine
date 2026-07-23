@@ -241,8 +241,8 @@ table.cp tbody tr:hover td { background: var(--brand-soft); }
 .big { background: linear-gradient(180deg, var(--ink), var(--ink-3)); -webkit-background-clip: text; background-clip: text; color: transparent; }
 
 /* Section divider polish under headers */
-.phead { position: relative; padding-bottom: 4px; }
-.phead::after { content: ""; position: absolute; left: 0; bottom: -6px; width: 44px; height: 3px; background: linear-gradient(90deg, var(--brand), var(--gold)); border-radius: 2px; }
+.phead { position: relative; }
+.phead::after { content: ""; position: absolute; left: 0; bottom: -1px; width: 56px; height: 3px; background: linear-gradient(90deg, var(--brand), var(--gold)); border-radius: 2px; }
 
 /* Soft entrance for content on route change */
 .content > div { animation: cpfade .32s ease both; }
