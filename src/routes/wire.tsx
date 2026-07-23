@@ -127,8 +127,6 @@ const DATA_SOURCES: { name: string; desc: string; drives: string[] }[] = [
     drives: ["v-cat"] },
   { name: "S.exceptions", desc: "System-generated queue of unresolvable states",
     drives: ["x-exc"] },
-  { name: "S.conflict", desc: "Two-partner lead registration conflict record",
-    drives: ["s-conf"] },
 ];
 
 function WirePage() {
