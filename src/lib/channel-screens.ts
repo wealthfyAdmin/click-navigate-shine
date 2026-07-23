@@ -319,7 +319,7 @@ export const V: Record<string, Renderer> = {
 
   "d-effort": () => head("Effort & evidence", "Time booked against tasks. This is what utilisation and true project cost are built from.") + `
     <div class="card-cp"><div class="split"><h3>Effort log · PRJ-2201</h3>
-      ${actBtn("logEffort", "", "Log time", "btn-cp pri sm")}</div>
+      ${linkBtn("delivery", "d-log", "Log time", "btn-cp pri sm", "PRJ-2201")}</div>
       ${table(["Date", "Consultant", "Task", "Hours"], S.effort.map(e => [e.d, e.who, e.t, e.h]))}
       <div class="split" style="margin-top:10px;font-size:12.5px"><span class="muted">Booked to date</span>
         <b>${S.effort.reduce((a, e) => a + e.h, 0) + 128} hours · 18 of 24 person-days</b></div></div>
