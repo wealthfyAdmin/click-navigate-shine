@@ -193,26 +193,8 @@ export const V: Record<string, Renderer> = {
         linkBtn("ops", "o-proj", "Track", "btn-cp pri sm", "PRJ-2201")]], "trace")}
     </div>`,
 
-  "s-conf": () => {
-    const c = S.conflict;
-    return head("Conflicts & registrations", "Two partners, one customer. Decide once, log it, notify both.") +
-    (c.resolved
-      ? `<div class="card-cp"><h3>Queue is clear</h3><div class="sub">Nothing waiting. New registrations appear here within the hour.</div>
-        <div class="note" style="margin-top:10px">LEAD-3391 awarded on first registration plus logged engagement. Both partners notified; decision stored for dispute defence.</div></div>`
-      : `<div class="card-cp" style="border-left:4px solid var(--warn)">
-        <div class="split"><div><span class="mono">${c.id}</span> <b style="font-size:15px">${c.cust}</b></div>
-        <span class="pill p-warn">Decision needed</span></div>
-        <div class="grid-cp g2" style="margin-top:14px">
-          <div class="note" style="border-style:solid"><b>${c.a.n}</b><div class="faint">Registered ${c.a.on}</div><div style="margin-top:6px">${c.a.ev}</div></div>
-          <div class="note" style="border-style:solid"><b>${c.b.n}</b><div class="faint">Registered ${c.b.on}</div><div style="margin-top:6px">${c.b.ev}</div></div>
-        </div>
-        <div class="row" style="margin-top:14px">
-          ${actBtn("resolveConf", `'${c.a.n}'`, `Award to ${c.a.n}`, "btn-cp pri")}
-          ${actBtn("resolveConf", `'${c.b.n}'`, `Award to ${c.b.n}`)}
-          <span class="faint">Rule applied: first registration + evidence of engagement</span>
-        </div>
-      </div>`);
-  },
+
+
 
   "s-qual": () => head("Partner quality board", "Stop investing pipeline in partners who will not convert it.") + `
     <div class="card-cp">${table(
