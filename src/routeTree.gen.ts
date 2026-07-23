@@ -9,38 +9,65 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WireRouteImport } from './routes/wire'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppRoleScreenRouteImport } from './routes/app.$role.$screen'
 
+const WireRoute = WireRouteImport.update({
+  id: '/wire',
+  path: '/wire',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppRoleScreenRoute = AppRoleScreenRouteImport.update({
+  id: '/app/$role/$screen',
+  path: '/app/$role/$screen',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/wire': typeof WireRoute
+  '/app/$role/$screen': typeof AppRoleScreenRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/wire': typeof WireRoute
+  '/app/$role/$screen': typeof AppRoleScreenRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/wire': typeof WireRoute
+  '/app/$role/$screen': typeof AppRoleScreenRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/wire' | '/app/$role/$screen'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/wire' | '/app/$role/$screen'
+  id: '__root__' | '/' | '/wire' | '/app/$role/$screen'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  WireRoute: typeof WireRoute
+  AppRoleScreenRoute: typeof AppRoleScreenRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/wire': {
+      id: '/wire'
+      path: '/wire'
+      fullPath: '/wire'
+      preLoaderRoute: typeof WireRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +75,21 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/$role/$screen': {
+      id: '/app/$role/$screen'
+      path: '/app/$role/$screen'
+      fullPath: '/app/$role/$screen'
+      preLoaderRoute: typeof AppRoleScreenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  WireRoute: WireRoute,
+  AppRoleScreenRoute: AppRoleScreenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
