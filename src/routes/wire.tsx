@@ -48,13 +48,11 @@ const WIRES: Wire[] = [
   { from: { role: "sales", screen: "s-cov", label: "Track (Kohinoor row)" },
     to: { kind: "route", role: "ops", screen: "o-proj", ctx: "PRJ-2201", label: "/app/ops/o-proj?ctx=PRJ-2201" },
     data: ["S.projects"] },
-  { from: { role: "sales", screen: "s-conf", label: "Award to <partner>" },
-    to: { kind: "action", label: "S.conflict.resolved = true" },
-    data: ["S.conflict"], trigger: "window.__cp.resolveConf" },
   { from: { role: "sales", screen: "s-qual", label: "Suspend leads (Review band)" },
     to: { kind: "action", label: "toast: partner suspended" }, data: ["S.partners"], trigger: "window.__cp.suspend" },
   { from: { role: "sales", screen: "s-qual", label: "Assign coaching (Watch band)" },
     to: { kind: "action", label: "toast: coaching booked" }, data: ["S.partners"], trigger: "window.__cp.coach" },
+
 
   // Ops
   { from: { role: "ops", screen: "o-board", label: "Open (project row)" },
