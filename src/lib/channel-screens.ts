@@ -251,7 +251,7 @@ export const V: Record<string, Renderer> = {
         <span class="dot"></span><div><b>${m.t}</b><small>${m.d}</small></div><span class="sp"></span>
         <span class="pill ${m.s === "done" ? "p-good" : m.s === "now" ? "p-info" : m.s === "slip" ? "p-bad" : "p-mute"}">${m.s === "done" ? "Complete" : m.s === "now" ? "In progress" : m.s === "slip" ? "Slipped" : "Planned"}</span></div>`).join("")}</div>
       ${p.state === "In progress" || p.state === "At risk" ? `<div class="row" style="margin-top:13px">
-        ${actBtn("submitReport", `'${p.id}'`, "Mark testing complete &amp; request report", "btn-cp pri")}</div>` : ""}
+        ${linkBtn("delivery", "d-complete", "Mark testing complete &amp; request report", "btn-cp pri", p.id)}</div>` : ""}
       ${p.state === "Under review" ? `<div class="row" style="margin-top:13px">
         ${actBtn("approveReport", `'${p.id}'`, "Approve report &amp; release to customer", "btn-cp pri")}
         ${actBtn("toast", `'Sent back','Review comments recorded on v0.3'`, "Send back")}
