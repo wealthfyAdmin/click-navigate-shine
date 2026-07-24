@@ -64,69 +64,45 @@ function Login() {
           {existing && <> · Currently signed in as <b>{ROLES[existing].label}</b> — <Link to="/app/$role/$screen" params={{ role: existing, screen: firstScreenOf(existing) }} style={{ color: "var(--brand)", fontWeight: 600 }}>resume workspace</Link>.</>}
         </p>
 
-        <div className="grid-cp" style={{ gridTemplateColumns: "1.4fr 1fr", gap: 16, alignItems: "start" }}>
-          <div>
-            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.6, textTransform: "uppercase", color: "var(--faint)", marginBottom: 8 }}>
-              1 · Pick a role
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(200px,1fr))", gap: 10 }}>
-              {roles.map(k => {
-                const r = ROLES[k];
-                const active = selected === k;
-                return (
-                  <button
-                    key={k}
-                    type="button"
-                    onClick={() => { setSelected(k); setErr(""); }}
-                    className="card-cp"
-                    style={{
-                      textAlign: "left", cursor: "pointer", padding: 12,
-                      borderColor: active ? "var(--brand)" : undefined,
-                      boxShadow: active ? "0 0 0 3px rgba(43,89,255,.15), var(--shadow-cp)" : undefined,
-                      background: active ? "var(--brand-soft)" : undefined,
-                      transition: "all .15s",
-                    }}
-                  >
-                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                      <div className="av" style={{ width: 32, height: 32, borderRadius: 9, background: "linear-gradient(135deg,#2B59FF,#6E7BFF)", display: "grid", placeItems: "center", color: "#fff", fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 12 }}>
-                        {r.who[0]}
-                      </div>
-                      <div>
-                        <div style={{ fontFamily: "Space Grotesk", fontWeight: 700, fontSize: 14, color: "var(--ink)" }}>{r.label}</div>
-                        <div style={{ fontSize: 10.5, color: "var(--faint)" }}>{r.who[1]}</div>
-                      </div>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
+        <form onSubmit={submit} className="card-cp" style={{ padding: 20, maxWidth: 460 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.6, textTransform: "uppercase", color: "var(--faint)", marginBottom: 12 }}>
+            Sign in
           </div>
 
-          <form onSubmit={submit} className="card-cp" style={{ padding: 18 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.6, textTransform: "uppercase", color: "var(--faint)", marginBottom: 10 }}>
-              2 · Enter your credentials
+          <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--ink)", marginBottom: 6 }}>Role</label>
+          <select
+            value={selected ?? ""}
+            onChange={e => { setSelected((e.target.value || null) as RoleKey | null); setErr(""); }}
+            style={{ width: "100%", padding: "10px 12px", border: "1px solid var(--line)", borderRadius: 10, fontSize: 13, marginBottom: 14, outline: "none", background: "#fff", cursor: "pointer" }}
+          >
+            <option value="">Select a role…</option>
+            {roles.map(k => (
+              <option key={k} value={k}>{ROLES[k].label} — {ROLES[k].who[1]}</option>
+            ))}
+          </select>
+
+          {selected && (
+            <div style={{ padding: "10px 12px", background: "var(--brand-soft)", border: "1px solid var(--line)", borderRadius: 10, fontSize: 12, color: "var(--ink)", marginBottom: 14, lineHeight: 1.5 }}>
+              <b>{ROLES[selected].who[1]}</b> · {ROLES[selected].who[2]}
             </div>
-            <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--ink)", marginBottom: 6 }}>Signing in as</label>
-            <div style={{ padding: "10px 12px", background: "var(--surface-2)", border: "1px solid var(--line)", borderRadius: 10, fontSize: 13, color: selected ? "var(--ink)" : "var(--faint)", marginBottom: 14 }}>
-              {selected ? `${ROLES[selected].label} — ${ROLES[selected].who[1]}` : "No role picked yet"}
-            </div>
-            <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--ink)", marginBottom: 6 }}>Password</label>
-            <input
-              type="password"
-              value={pwd}
-              onChange={e => { setPwd(e.target.value); setErr(""); }}
-              placeholder="any password (demo)"
-              style={{ width: "100%", padding: "10px 12px", border: "1px solid var(--line)", borderRadius: 10, fontSize: 13, marginBottom: 14, outline: "none" }}
-            />
-            {err && <div style={{ fontSize: 12, color: "var(--danger)", marginBottom: 10 }}>{err}</div>}
-            <button type="submit" className="btn-cp pri" style={{ width: "100%", justifyContent: "center", display: "inline-flex" }}>
-              Sign in →
-            </button>
-            <div style={{ marginTop: 10, fontSize: 11, color: "var(--faint)", lineHeight: 1.5 }}>
-              Demo sign-in. Any 3+ character password is accepted. Your role stays only in this browser.
-            </div>
-          </form>
-        </div>
+          )}
+
+          <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "var(--ink)", marginBottom: 6 }}>Password</label>
+          <input
+            type="password"
+            value={pwd}
+            onChange={e => { setPwd(e.target.value); setErr(""); }}
+            placeholder="any password (demo)"
+            style={{ width: "100%", padding: "10px 12px", border: "1px solid var(--line)", borderRadius: 10, fontSize: 13, marginBottom: 14, outline: "none" }}
+          />
+          {err && <div style={{ fontSize: 12, color: "var(--danger)", marginBottom: 10 }}>{err}</div>}
+          <button type="submit" className="btn-cp pri" style={{ width: "100%", justifyContent: "center", display: "inline-flex" }}>
+            Sign in →
+          </button>
+          <div style={{ marginTop: 10, fontSize: 11, color: "var(--faint)", lineHeight: 1.5 }}>
+            Demo sign-in. Any 3+ character password is accepted. Your role stays only in this browser.
+          </div>
+        </form>
       </div>
     </div>
   );
