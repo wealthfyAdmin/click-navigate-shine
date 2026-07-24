@@ -622,7 +622,7 @@ export function renderSidebar(role: RoleKey, screen: string): string {
       <div><b>Channel Platform</b><small>MVP · Volume II</small></div>
     </div>
     <div class="rolelabel">Signed in as</div>
-    <div class="roles"><a class="on" href="/app/${role}/${r.nav[0][1][0][0]}">${r.label}</a></div>
+    <div style="padding:10px 12px;margin:0 0 10px;background:var(--brand-soft);border:1px solid var(--line);border-radius:10px;font-size:12.5px;color:var(--ink);font-weight:600">${r.label}</div>
     <nav class="nav">${nav}</nav>
     <div style="margin-top:10px"><a class="nav" href="/wire" style="display:block;padding:9px 10px;color:#F0C878;background:rgba(217,154,36,.1);border:1px solid rgba(217,154,36,.25);border-radius:9px;font-size:12px;font-weight:600;text-decoration:none;text-align:center">◈ Wire connections map</a></div>
     <div class="who"><div class="whocard"><div class="av">${w[0]}</div><div><b>${w[1]}</b><small>${w[2]}</small></div></div>
