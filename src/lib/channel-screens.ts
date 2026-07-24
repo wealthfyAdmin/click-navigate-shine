@@ -611,8 +611,6 @@ export function renderScreen(screen: string, role: RoleKey, ctx?: string): strin
 // Sidebar/topbar HTML (rendered by layout, but Links overridden via anchor tags for hydration simplicity)
 export function renderSidebar(role: RoleKey, screen: string): string {
   const r = ROLES[role];
-  const roles = (Object.keys(ROLES) as RoleKey[])
-    .map(k => `<a class="${k === role ? "on" : ""}" href="/app/${k}/${ROLES[k].nav[0][1][0][0]}">${ROLES[k].label}</a>`).join("");
   const nav = r.nav.map(([g, items]) =>
     `<div class="grp">${g}</div>` + items.map(([id, label, isNew]) =>
       `<a class="${id === screen ? "active" : ""}" href="/app/${role}/${id}">${label}${isNew ? '<span class="new">NEW</span>' : ""}</a>`).join("")
@@ -623,28 +621,28 @@ export function renderSidebar(role: RoleKey, screen: string): string {
       <div class="logo"></div>
       <div><b>Channel Platform</b><small>MVP · Volume II</small></div>
     </div>
-    <div class="rolelabel">Sign in as</div>
-    <div class="roles">${roles}</div>
+    <div class="rolelabel">Signed in as</div>
+    <div class="roles"><a class="on" href="/app/${role}/${r.nav[0][1][0][0]}">${r.label}</a></div>
     <nav class="nav">${nav}</nav>
     <div style="margin-top:10px"><a class="nav" href="/wire" style="display:block;padding:9px 10px;color:#F0C878;background:rgba(217,154,36,.1);border:1px solid rgba(217,154,36,.25);border-radius:9px;font-size:12px;font-weight:600;text-decoration:none;text-align:center">◈ Wire connections map</a></div>
-    <div class="who"><div class="whocard"><div class="av">${w[0]}</div><div><b>${w[1]}</b><small>${w[2]}</small></div></div></div>
+    <div class="who"><div class="whocard"><div class="av">${w[0]}</div><div><b>${w[1]}</b><small>${w[2]}</small></div></div>
+      <button class="btn-cp sm" style="margin-top:10px;width:100%;justify-content:center;display:inline-flex" onclick="window.__cp.signOut()">Sign out</button>
+    </div>
   `;
 }
 
 export function renderTopbar(role: RoleKey): string {
-  const dots = (Object.keys(ROLES) as RoleKey[]).map(k =>
-    `<a class="${k === role ? "on" : ""}" title="See this record as ${ROLES[k].label}" href="/app/${k}/${(k === "ops" ? "o-proj?ctx=PRJ-2201" : (k === "partner" ? "p-del" : k === "sales" ? "s-cov" : k === "delivery" ? "d-assign" : k === "accounts" ? "a-inv" : k === "client" ? "c-proj" : k === "admin" ? "x-exc" : "v-cat"))}">${ROLES[k].label.slice(0, 2)}</a>`
-  ).join("");
+  const r = ROLES[role];
   return `
     <div class="lens">
       <div>
-        <div class="lbl">Tracing one record</div>
-        <div class="rec">Kohinoor Textiles · Web &amp; API VAPT</div>
+        <div class="lbl">Your workspace</div>
+        <div class="rec">${r.label} · ${r.who[1]}</div>
       </div>
-      <div class="dots">${dots}</div>
     </div>
     <div class="sp"></div>
     <button class="ibtn" title="Notifications" onclick="window.__cp.toast('4 unread','Project at risk · Sign-off pending · Invoice overdue · Credit expiring')">🔔<span class="ping">4</span></button>
     <a class="ibtn" title="Wire connections" href="/wire">◈</a>
+    <button class="btn-cp sm" style="margin-left:8px" onclick="window.__cp.signOut()">Sign out</button>
   `;
 }

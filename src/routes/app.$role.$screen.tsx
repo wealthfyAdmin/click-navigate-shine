@@ -1,4 +1,4 @@
-import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { z } from "zod";
 import {
@@ -9,6 +9,7 @@ import {
 import { ROLES, SCREEN_TITLES, S, type RoleKey } from "@/lib/channel-data";
 import { renderScreen, renderSidebar, renderTopbar } from "@/lib/channel-screens";
 import { installActions } from "@/lib/channel-actions";
+import { firstScreenOf, getRole, signOut } from "@/lib/auth";
 
 const searchSchema = z.object({ ctx: z.string().optional() });
 
@@ -34,25 +35,36 @@ function AppScreen() {
   const { role, screen } = Route.useParams();
   const { ctx } = Route.useSearch();
   const router = useRouter();
+  const nav = useNavigate();
   const contentRef = useRef<HTMLDivElement>(null);
 
   const roleKey = (ROLES as any)[role] ? (role as RoleKey) : "partner";
 
+  // Session gate: only the signed-in role can see its own pages.
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    const s = getRole();
+    if (!s) { nav({ to: "/" }); return; }
+    if (s !== roleKey) {
+      nav({ to: "/app/$role/$screen", params: { role: s, screen: firstScreenOf(s) }, replace: true });
+      return;
+    }
+    setReady(true);
+  }, [roleKey, nav]);
+
   // Install action handlers once; refresh = re-run loader / re-render.
   useEffect(() => {
     installActions(() => router.invalidate());
-  }, [router]);
+    // Sign-out action wired to topbar button.
+    (window as any).__cp = (window as any).__cp || {};
+    (window as any).__cp.signOut = () => { signOut(); nav({ to: "/" }); };
+  }, [router, nav]);
 
   const html = useMemo(() => renderScreen(screen, roleKey, ctx), [screen, roleKey, ctx]);
   const sidebar = useMemo(() => renderSidebar(roleKey, screen), [roleKey, screen]);
   const topbar = useMemo(() => renderTopbar(roleKey), [roleKey]);
 
-  // Inject supplementary React-rendered charts into slots the HTML leaves behind.
-  useEffect(() => {
-    const el = contentRef.current;
-    if (!el) return;
-    // No-op; charts rendered via portal placeholder divs below through React tree.
-  }, [html]);
+  if (!ready) return null;
 
   return (
     <div className="cp-shell">
