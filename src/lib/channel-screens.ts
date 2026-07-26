@@ -600,6 +600,114 @@ export const V: Record<string, Renderer> = {
         </div></div>
     </div>`;
   },
+
+  // ---- Flow pages for previously toast-only buttons ----
+  "p-escalate": ({ ctx }) => {
+    const p = prj(ctx || "PRJ-2204") || S.projects[1];
+    return subhead("Raise escalation", `${p.id} · ${p.cust}`, "partner", "p-del", "My deliveries") + `
+    <div class="grid-cp g21">
+      <div class="card-cp"><h3>Escalation details</h3><div class="sub">Goes to the customer → partner → OEM matrix Ops works from. SLA clock starts immediately.</div>
+        ${kvRows([["Project", `<span class="mono">${p.id}</span>`],["Customer", p.cust],["Current state", p.state],["Owner (Ops)", p.pm || "unassigned"],["Suggested level", p.rag === "red" ? "L2 · At risk" : "L1 · Delay"]])}
+        <div style="margin-top:12px"><div class="k faint">Level</div>
+          <div class="row" style="margin-top:6px">
+            <button class="btn-cp sm" onclick="window.__cp.toast('Level set','L1 · Delay')">L1 · Delay</button>
+            <button class="btn-cp sm pri" onclick="window.__cp.toast('Level set','L2 · At risk')">L2 · At risk</button>
+            <button class="btn-cp sm" onclick="window.__cp.toast('Level set','L3 · Critical')">L3 · Critical</button>
+          </div></div>
+        <div style="margin-top:12px"><div class="k faint">Reason</div>
+          <div class="input" style="min-height:70px;margin-top:6px">Milestone slippage on ${p.what.toLowerCase()}. Customer dependency open beyond tolerance; request Ops recovery plan within 24h.</div></div>
+        <div class="row" style="margin-top:14px">
+          ${actBtn("escalate", `'${p.cust}'`, "Raise escalation", "btn-cp pri")}
+          ${linkBtn("partner","p-del","Cancel","btn-cp sm")}
+        </div></div>
+      <div class="card-cp"><h3>What happens next</h3>
+        <div class="stack" style="font-size:12.5px">
+          ${feed("info","Recorded in Ops escalations","Appears at /ops/escalations with matching ref")}
+          ${feed("warn","24h recovery plan required","Ops head + Sales notified")}
+          ${feed("good","Visible to both sides","Customer, partner and OEM read the same record")}
+        </div></div>
+    </div>`;
+  },
+
+  "o-raise-l3": ({ ctx }) => {
+    const e = S.escal.find(x => x.id === ctx) || S.escal[0];
+    return subhead("Raise to L3 · Critical", `${e.id} · ${e.prj}`, "ops", "o-esc", "Escalations") + `
+    <div class="grid-cp g21">
+      <div class="card-cp"><h3>Confirm L3 escalation</h3><div class="sub">Leadership will be paged. A recovery plan is due within 24 hours.</div>
+        ${kvRows([["Reference", `<span class="mono">${e.id}</span>`],["Project", `<a class="mono" href="/app/ops/o-proj?ctx=${e.prj}">${e.prj}</a>`],["Current level", e.lvl],["Reason", e.what],["Open since", e.since],["Owner", e.own]])}
+        <div style="margin-top:12px"><div class="k faint">Notify</div>
+          <div class="row" style="margin-top:6px">
+            <span class="pill p-info">COO</span><span class="pill p-info">Head of Delivery</span><span class="pill p-info">Sales lead</span><span class="pill p-info">Partner owner</span>
+          </div></div>
+        <div class="row" style="margin-top:14px">
+          ${actBtn("raiseL3", `'${e.prj}'`, "Confirm · Raise to L3", "btn-cp danger")}
+          ${linkBtn("ops","o-esc","Cancel","btn-cp sm")}
+        </div></div>
+      <div class="card-cp"><h3>Impact</h3>
+        <div class="stack" style="font-size:12.5px">
+          ${feed("bad","Severity → Critical","Project moves to red on the delivery board")}
+          ${feed("info","24h clock","Recovery plan expected by ${e.since} + 1d")}
+          ${feed("warn","Customer visibility","Partner sees the change; customer sees only the recovery plan")}
+        </div></div>
+    </div>`;
+  },
+
+  "s-suspend": ({ ctx }) => {
+    const p = S.partners.find(x => x.n === ctx) || S.partners.find(x => x.b === "Review")!;
+    return subhead("Suspend lead allocation", `${p.f} · ${p.c}`, "sales", "s-qual", "Partner quality board") + `
+    <div class="grid-cp g21">
+      <div class="card-cp"><h3>Confirm suspension</h3><div class="sub">No new leads will be routed to this partner until reviewed.</div>
+        ${kvRows([["Partner", p.n],["Firm", p.f],["Tier", p.t],["Score", `${p.sc} · ${p.b}`],["Leads consumed", p.leads],["Won", p.won],["Credit used", p.util + "%"],["Trigger", "Review band · zero conversion"]])}
+        <div style="margin-top:12px"><div class="k faint">Review conversation</div>
+          <div class="input" style="min-height:60px;margin-top:6px">Book with Sales head + partner owner within 5 working days. Agenda: 22 leads consumed, 0 wins, 8% credit used with 26 days remaining.</div></div>
+        <div class="row" style="margin-top:14px">
+          ${actBtn("suspend", `'${p.n}'`, "Suspend allocation", "btn-cp danger")}
+          ${linkBtn("sales","s-qual","Cancel","btn-cp sm")}
+        </div></div>
+      <div class="card-cp"><h3>What happens next</h3>
+        <div class="stack" style="font-size:12.5px">
+          ${feed("bad","Lead routing paused","New leads in ${p.c} go to next-ranked partner")}
+          ${feed("warn","Existing pipeline retained","In-flight deals still visible to the partner")}
+          ${feed("info","Review meeting booked","Auto-invite to Sales head + partner owner")}
+        </div></div>
+    </div>`;
+  },
+
+  "s-coach": ({ ctx }) => {
+    const p = S.partners.find(x => x.f === ctx) || S.partners.find(x => x.b === "Watch")!;
+    return subhead("Assign coaching", `${p.n} · ${p.f}`, "sales", "s-qual", "Partner quality board") + `
+    <div class="grid-cp g21">
+      <div class="card-cp"><h3>Coaching plan</h3><div class="sub">Two courses + a pipeline review, scheduled automatically.</div>
+        ${table(["Course","Line","Duration","Status"],[
+          ["Asset Sync fundamentals","Tools · SI","2h 40m",'<span class="pill p-warn">Required</span>'],
+          ["Web & API VAPT scoping","Services · Red","3h 10m",'<span class="pill p-warn">Required</span>'],
+          ["Pipeline review with Sales head","—","45m",'<span class="pill p-info">Book · Fri 10:00</span>'],
+        ])}
+        <div class="row" style="margin-top:14px">
+          ${actBtn("coach", `'${p.f}'`, "Assign & book", "btn-cp pri")}
+          ${linkBtn("sales","s-qual","Cancel","btn-cp sm")}
+        </div></div>
+      <div class="card-cp"><h3>Why this partner</h3>
+        <div class="stack" style="font-size:12.5px">
+          ${feed("warn","Score " + p.sc, "Watch band · conversion below network median")}
+          ${feed("info","Credit " + p.util + "% used","Low utilisation with time still on tier")}
+          ${feed("good","On completion","Partner unlocks certification-gated lines")}
+        </div></div>
+    </div>`;
+  },
+
+  "n-inbox": ({ role }) => head("Notifications", "Everything the platform pushed to you. Nothing you had to ask for.") + `
+    <div class="card-cp">${table(
+      ["When","Signal","Detail","Action"],
+      [
+        ["2m ago","Project at risk","PRJ-2204 · Sahyadri ISO · milestone slipped", `<a class="btn-cp sm" href="/app/ops/o-proj?ctx=PRJ-2204">Open</a>`],
+        ["18m ago","Sign-off pending","Meridian Fintech · 2 days since report handover", `<a class="btn-cp sm" href="/app/client/c-proj">Client view</a>`],
+        ["1h ago","Invoice overdue","INV-4361 · Bluewave · 38 days", `<a class="btn-cp sm" href="/app/accounts/a-chase?ctx=INV-4361">Chase</a>`],
+        ["3h ago","Credit expiring","Vikram Rane · ₹9.2 L lapses in 26 days", `<a class="btn-cp sm" href="/app/accounts/a-cred">Ledger</a>`],
+        ["yesterday","Report delivered","Kohinoor · web testing complete", `<a class="btn-cp sm" href="/app/ops/o-proj?ctx=PRJ-2201">Open</a>`],
+      ]
+    )}
+    <div class="note" style="margin-top:12px">Signed in as <b>${ROLES[role].label}</b>. Every row above already links to the exact page where the action lives — no digging.</div></div>`,
 };
 
 export function renderScreen(screen: string, role: RoleKey, ctx?: string): string {
