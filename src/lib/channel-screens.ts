@@ -124,7 +124,7 @@ export const V: Record<string, Renderer> = {
         <div class="note" style="margin-top:11px">${p.risk ? p.risk : (p.signed ? "Signed off by customer. Invoice is with Accounts." : "Next milestone: " + ((p.ms.find(m => m.s === "now") || { t: "—" }).t))}</div>
         <div class="row" style="margin-top:11px">
           <a class="btn-cp pri sm" href="/app/ops/o-proj?ctx=${p.id}">Open detail</a>
-          ${actBtn("escalate", `'${p.cust}'`, "Escalate")}
+          ${linkBtn("partner", "p-escalate", "Escalate", "btn-cp danger sm", p.id)}
         </div>
       </div>`).join("")}</div>
     <div class="note" style="margin-top:14px">Escalations you raise here enter the same matrix Operations works from — customer → partner → OEM, with the SLA clock visible to both sides.</div>`;
@@ -207,8 +207,8 @@ export const V: Record<string, Renderer> = {
         `<b>${p.f}</b><div class="faint">${p.n}</div>`, p.c, p.t, p.leads, p.won, lakh(p.rev), p.util + "%",
         `<b>${p.sc}</b>`,
         `<span class="pill ${p.b === "Growth" ? "p-good" : p.b === "Steady" ? "p-info" : p.b === "Watch" ? "p-warn" : "p-bad"}">${p.b}</span>`,
-        p.b === "Review" ? actBtn("suspend", `'${p.n}'`, "Suspend leads", "btn-cp danger sm")
-          : p.b === "Watch" ? actBtn("coach", `'${p.f}'`, "Assign coaching")
+        p.b === "Review" ? linkBtn("sales", "s-suspend", "Suspend leads", "btn-cp danger sm", p.n)
+          : p.b === "Watch" ? linkBtn("sales", "s-coach", "Assign coaching", "btn-cp sm", p.f)
           : '<span class="faint">—</span>',
       ])
     )}
@@ -299,7 +299,7 @@ export const V: Record<string, Renderer> = {
         `<a class="mono" href="/app/ops/o-proj?ctx=${e.prj}">${e.prj}</a>`,
         `<span class="pill ${e.lvl === "L2" ? "p-bad" : "p-warn"}">${e.lvl}</span>`,
         e.what, e.since, e.own,
-        actBtn("raiseL3", `'${e.prj}'`, "Raise to L3", "btn-cp danger sm"),
+        linkBtn("ops", "o-raise-l3", "Raise to L3", "btn-cp danger sm", e.id),
       ])
     )}
     <div class="note" style="margin-top:12px">L1 delay · L2 at risk · L3 critical. Only internal holds count against our SLA; the 19 days on Sahyadri sit against the customer and are recorded as such.</div></div>`,
