@@ -749,7 +749,7 @@ export function renderTopbar(role: RoleKey): string {
       </div>
     </div>
     <div class="sp"></div>
-    <button class="ibtn" title="Notifications" onclick="window.__cp.toast('4 unread','Project at risk · Sign-off pending · Invoice overdue · Credit expiring')">🔔<span class="ping">4</span></button>
+    <a class="ibtn" title="Notifications" href="/app/${role}/n-inbox">🔔<span class="ping">4</span></a>
     <a class="ibtn" title="Wire connections" href="/wire">◈</a>
     <button class="btn-cp sm" style="margin-left:8px" onclick="window.__cp.signOut()">Sign out</button>
   `;
