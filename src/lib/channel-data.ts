@@ -168,9 +168,11 @@ export const TRACE: Record<RoleKey, string> = {
 export const SCREEN_TITLES: Record<string, string> = {
   "p-dash": "Partner · Dashboard", "p-pipe": "Partner · Pipeline", "p-del": "Partner · Deliveries",
   "p-earn": "Partner · Earnings", "p-score": "Partner · Scorecard",
+  "p-escalate": "Partner · Raise escalation",
   "s-cov": "Sales · Coverage", "s-qual": "Sales · Quality board",
+  "s-suspend": "Sales · Suspend allocation", "s-coach": "Sales · Assign coaching",
   "o-board": "Ops · Delivery board", "o-unalloc": "Ops · Unallocated wins", "o-proj": "Ops · Project detail",
-  "o-res": "Ops · Resources", "o-esc": "Ops · Escalations",
+  "o-res": "Ops · Resources", "o-esc": "Ops · Escalations", "o-raise-l3": "Ops · Raise to L3",
   "d-assign": "Delivery · Assignments", "d-effort": "Delivery · Effort", "d-report": "Delivery · Report",
   "a-inv": "Accounts · Invoices", "a-cred": "Accounts · Credit ledger", "a-pay": "Accounts · Payout run",
   "a-chase": "Accounts · Chase overdue", "a-raise": "Accounts · Raise invoice",
@@ -178,6 +180,7 @@ export const SCREEN_TITLES: Record<string, string> = {
   "c-dash": "Client · Overview", "c-proj": "Client · Projects",
   "x-over": "Admin · Platform overview", "x-exc": "Admin · Exceptions",
   "v-cat": "Vendor · Catalogue",
+  "n-inbox": "Notifications",
 };
 
 export const money = (n: number | string) => typeof n === "string" ? n : "₹" + n.toLocaleString("en-IN");

@@ -54,10 +54,11 @@ function AppScreen() {
 
   // Install action handlers once; refresh = re-run loader / re-render.
   useEffect(() => {
-    installActions(() => router.invalidate());
-    // Sign-out action wired to topbar button.
+    const go = (href: string) => { (router as any).history.push(href); };
+    installActions(() => router.invalidate(), go);
     (window as any).__cp = (window as any).__cp || {};
     (window as any).__cp.signOut = () => { signOut(); nav({ to: "/" }); };
+    (window as any).__cp.__go = go;
   }, [router, nav]);
 
   const html = useMemo(() => renderScreen(screen, roleKey, ctx), [screen, roleKey, ctx]);
