@@ -105,11 +105,12 @@ export const V: Record<string, Renderer> = {
       S.opps.map(o => [
         `<span class="mono">${o.id}</span>`, `<b>${o.cust}</b>`, o.what, money(o.val),
         `<span class="pill p-info">${o.stage}</span>`, `<b>${o.score}</b>`, o.lock,
-        linkBtn("partner", "p-del", "Track"),
+        linkBtn("partner", "p-track", "Track", "btn-cp sm", o.id),
       ])
     )}
     <div class="note" style="margin-top:12px">OPP-1063 is with Operations for effort sizing. You will get a person-day estimate and the earliest realistic start date before you quote — so you never sell a date delivery cannot hold.</div>
     </div>`,
+
 
   "p-del": () => {
     const mine = S.projects.filter(p => p.partner === "Amit Deshpande");
