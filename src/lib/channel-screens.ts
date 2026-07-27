@@ -142,12 +142,13 @@ export const V: Record<string, Renderer> = {
       ${table(["Deal", "Customer", "Order value", "Your margin", "Status", "Trigger", ""], [
         ['<span class="mono">PRJ-2198</span>', "Meridian Fintech", money(560000), money(84000),
           S.projects.find(p => p.id === "PRJ-2198")!.invoiced ? '<span class="pill p-info">Invoice raised</span>' : '<span class="pill p-warn">Awaiting invoice</span>',
-          "Sign-off complete", linkBtn("accounts", "a-inv", "See invoice")],
+          "Sign-off complete", linkBtn("accounts", "a-invdetail", "See invoice", "btn-cp sm", "INV-4412")],
         ['<span class="mono">PRJ-2201</span>', "Kohinoor Textiles", money(460000), money(69000), '<span class="pill p-mute">In delivery</span>', "On sign-off",
           `<a class="btn-cp sm" href="/app/ops/o-proj?ctx=PRJ-2201">Track</a>`],
         ['<span class="mono">PRJ-2185</span>', "Bluewave Logistics", money(145000), money(21750), '<span class="pill p-bad">Payment overdue</span>', "On realisation",
           linkBtn("accounts", "a-chase", "Chase", "btn-cp danger sm", "INV-4361")],
       ])}
+
     </div>`,
 
   "p-score": () => {
