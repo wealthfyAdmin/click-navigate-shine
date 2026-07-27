@@ -416,12 +416,13 @@ export const V: Record<string, Renderer> = {
     </div>
     <div class="card-cp" style="margin-top:14px"><h3>Recommended next</h3>
     <div class="sub">Based on your industry, size and current findings — presented by your partner</div>
-    ${table(["Service", "Why", "Indicative"], [
-      ["ISO 27001 implementation", "Compliance gaps flagged in this assessment", "₹9.80 L"],
-      ["SIEM (managed)", "No central log monitoring detected", "₹4.20 L / year"],
-      ["Email security", "Phishing exposure on 3 of 4 tested domains", "₹1.10 L / year"],
+    ${table(["Service", "Why", "Indicative", ""], [
+      ["ISO 27001 implementation", "Compliance gaps flagged in this assessment", "₹9.80 L", linkBtn("client","c-enquire","Enquire","btn-cp pri sm","iso27001")],
+      ["SIEM (managed)", "No central log monitoring detected", "₹4.20 L / year", linkBtn("client","c-enquire","Enquire","btn-cp pri sm","siem")],
+      ["Email security", "Phishing exposure on 3 of 4 tested domains", "₹1.10 L / year", linkBtn("client","c-enquire","Enquire","btn-cp pri sm","email")],
     ])}
-    <div class="row" style="margin-top:12px">${linkBtn("client", "c-proj", "View my projects", "btn-cp pri sm")}</div></div>`,
+    <div class="row" style="margin-top:12px">${linkBtn("client", "c-proj", "View my projects", "btn-cp sm")}</div></div>`,
+
 
   "c-proj": () => {
     const p = prj("PRJ-2201")!;
