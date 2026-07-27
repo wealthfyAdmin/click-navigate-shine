@@ -858,11 +858,16 @@ export function renderSidebar(role: RoleKey, screen: string): string {
       `<a class="${id === screen ? "active" : ""}" href="/app/${role}/${id}">${label}${isNew ? '<span class="new">NEW</span>' : ""}</a>`).join("")
   ).join("");
   const w = r.who;
+  const clientBtn = role === "partner"
+    ? `<a href="/app/client/c-dash" class="btn-cp sm pri" style="display:inline-flex;align-items:center;gap:6px;margin-bottom:10px;text-decoration:none" title="Open client workspace">👤 Client view</a>`
+    : "";
   return `
     <div class="brandmark">
       <div class="logo"></div>
       <div><b>Channel Platform</b><small>MVP · Volume II</small></div>
     </div>
+    ${clientBtn}
+
     <div class="rolelabel">Signed in as</div>
     <div style="padding:10px 12px;margin:0 0 10px;background:var(--brand-soft);border:1px solid var(--line);border-radius:10px;font-size:12.5px;color:var(--ink);font-weight:600">${r.label}</div>
     <nav class="nav">${nav}</nav>
