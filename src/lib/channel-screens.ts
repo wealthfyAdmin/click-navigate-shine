@@ -105,11 +105,12 @@ export const V: Record<string, Renderer> = {
       S.opps.map(o => [
         `<span class="mono">${o.id}</span>`, `<b>${o.cust}</b>`, o.what, money(o.val),
         `<span class="pill p-info">${o.stage}</span>`, `<b>${o.score}</b>`, o.lock,
-        linkBtn("partner", "p-del", "Track"),
+        linkBtn("partner", "p-track", "Track", "btn-cp sm", o.id),
       ])
     )}
     <div class="note" style="margin-top:12px">OPP-1063 is with Operations for effort sizing. You will get a person-day estimate and the earliest realistic start date before you quote — so you never sell a date delivery cannot hold.</div>
     </div>`,
+
 
   "p-del": () => {
     const mine = S.projects.filter(p => p.partner === "Amit Deshpande");
@@ -141,12 +142,13 @@ export const V: Record<string, Renderer> = {
       ${table(["Deal", "Customer", "Order value", "Your margin", "Status", "Trigger", ""], [
         ['<span class="mono">PRJ-2198</span>', "Meridian Fintech", money(560000), money(84000),
           S.projects.find(p => p.id === "PRJ-2198")!.invoiced ? '<span class="pill p-info">Invoice raised</span>' : '<span class="pill p-warn">Awaiting invoice</span>',
-          "Sign-off complete", linkBtn("accounts", "a-inv", "See invoice")],
+          "Sign-off complete", linkBtn("accounts", "a-invdetail", "See invoice", "btn-cp sm", "INV-4412")],
         ['<span class="mono">PRJ-2201</span>', "Kohinoor Textiles", money(460000), money(69000), '<span class="pill p-mute">In delivery</span>', "On sign-off",
           `<a class="btn-cp sm" href="/app/ops/o-proj?ctx=PRJ-2201">Track</a>`],
         ['<span class="mono">PRJ-2185</span>', "Bluewave Logistics", money(145000), money(21750), '<span class="pill p-bad">Payment overdue</span>', "On realisation",
           linkBtn("accounts", "a-chase", "Chase", "btn-cp danger sm", "INV-4361")],
       ])}
+
     </div>`,
 
   "p-score": () => {
@@ -414,12 +416,13 @@ export const V: Record<string, Renderer> = {
     </div>
     <div class="card-cp" style="margin-top:14px"><h3>Recommended next</h3>
     <div class="sub">Based on your industry, size and current findings — presented by your partner</div>
-    ${table(["Service", "Why", "Indicative"], [
-      ["ISO 27001 implementation", "Compliance gaps flagged in this assessment", "₹9.80 L"],
-      ["SIEM (managed)", "No central log monitoring detected", "₹4.20 L / year"],
-      ["Email security", "Phishing exposure on 3 of 4 tested domains", "₹1.10 L / year"],
+    ${table(["Service", "Why", "Indicative", ""], [
+      ["ISO 27001 implementation", "Compliance gaps flagged in this assessment", "₹9.80 L", linkBtn("client","c-enquire","Enquire","btn-cp pri sm","iso27001")],
+      ["SIEM (managed)", "No central log monitoring detected", "₹4.20 L / year", linkBtn("client","c-enquire","Enquire","btn-cp pri sm","siem")],
+      ["Email security", "Phishing exposure on 3 of 4 tested domains", "₹1.10 L / year", linkBtn("client","c-enquire","Enquire","btn-cp pri sm","email")],
     ])}
-    <div class="row" style="margin-top:12px">${linkBtn("client", "c-proj", "View my projects", "btn-cp pri sm")}</div></div>`,
+    <div class="row" style="margin-top:12px">${linkBtn("client", "c-proj", "View my projects", "btn-cp sm")}</div></div>`,
+
 
   "c-proj": () => {
     const p = prj("PRJ-2201")!;
@@ -708,7 +711,138 @@ export const V: Record<string, Renderer> = {
       ]
     )}
     <div class="note" style="margin-top:12px">Signed in as <b>${ROLES[role].label}</b>. Every row above already links to the exact page where the action lives — no digging.</div></div>`,
+
+  // ---- Detail pages for previously list-only redirects ----
+  "a-invdetail": ({ ctx }) => {
+    const i = S.invoices.find(x => x.id === ctx) || S.invoices[0];
+    const gross = typeof i.amt === "number" ? i.amt : 460000;
+    const gst = Math.round(gross * 0.18);
+    const net = gross - gst;
+    const margin = Math.round(gross * 0.15);
+    return subhead("Invoice detail", `${i.id} · ${i.cust}`, "accounts", "a-inv", "Invoice queue") + `
+    <div class="grid-cp g21">
+      <div class="card-cp"><div class="split"><h3>${i.id}</h3>
+        <span class="pill ${i.st === "Ready to raise" ? "p-warn" : i.st === "Overdue" ? "p-bad" : i.st === "Raised" ? "p-info" : "p-mute"}">${i.st}</span></div>
+        <div class="sub">${i.age}</div>
+        ${kvRows([
+          ["Customer", i.cust],
+          ["Project", `<a class="mono" href="/app/ops/o-proj?ctx=${i.prj}">${i.prj}</a>`],
+          ["Invoice date", "22 Jul 2026"],
+          ["Due date", "21 Aug 2026"],
+          ["PO reference", "PO-" + i.id.replace("INV-", "")],
+          ["GSTIN", "27AABCK1234M1ZP"],
+          ["Payment terms", "Net 30"],
+        ])}
+        <h3 style="margin-top:16px">Line items</h3>
+        ${table(["#","Description","Qty","Rate","Amount"],[
+          ["1","Web application VAPT (4 apps)","4","₹46,000",money(184000)],
+          ["2","API security testing (2 API sets)","2","₹92,000",money(184000)],
+          ["3","Retest window (up to 30 days)","1","₹92,000",money(92000)],
+        ])}
+        <div class="split" style="margin-top:10px;font-size:12.5px"><span class="muted">Subtotal</span><b>${money(net)}</b></div>
+        <div class="split" style="font-size:12.5px"><span class="muted">GST 18%</span><b>${money(gst)}</b></div>
+        <div class="split" style="font-size:13.5px;padding-top:8px;border-top:1px solid var(--line);margin-top:8px"><span><b>Total</b></span><b style="color:var(--brand)">${money(gross)}</b></div>
+        <div class="row" style="margin-top:14px">
+          ${i.st === "Overdue" ? linkBtn("accounts","a-chase","Chase payment","btn-cp danger sm",i.id) : ""}
+          ${i.st === "Ready to raise" ? linkBtn("accounts","a-raise","Raise invoice","btn-cp pri sm",i.id) : ""}
+          <button class="btn-cp sm" onclick="window.__cp.toast('PDF downloaded','${i.id}.pdf')">Download PDF</button>
+          <button class="btn-cp sm" onclick="window.__cp.toast('Re-sent','${i.cust} AP contact')">Re-send to customer</button>
+        </div>
+      </div>
+      <div class="stack">
+        <div class="card-cp"><h3>Partner margin</h3>
+          ${kvRows([["Gross invoice", money(gross)],["Partner slab", "15%"],["Accrued", money(margin)],["Trigger", "On realisation"]])}
+          <div class="note" style="margin-top:10px">Releases into the next payout run once payment is realised.</div>
+        </div>
+        <div class="card-cp"><h3>Activity</h3>
+          <div class="stack" style="font-size:12.5px">
+            ${feed("info","Invoice raised","22 Jul · Meera Joshi")}
+            ${feed("info","Delivered to AP","22 Jul · ap@" + i.cust.split(" ")[0].toLowerCase() + ".com")}
+            ${feed("good","Read receipt","23 Jul")}
+            ${i.st === "Overdue" ? feed("bad","Reminder 2 sent","14 Jul · Meera Joshi") : feed("warn","Reminder scheduled","14 Aug · automated")}
+          </div>
+        </div>
+      </div>
+    </div>`;
+  },
+
+  "p-track": ({ ctx }) => {
+    const o = S.opps.find(x => x.id === ctx) || S.opps[0];
+    return subhead("Track deal", `${o.id} · ${o.cust}`, "partner", "p-pipe", "Leads & pipeline") + `
+    <div class="grid-cp g21">
+      <div class="card-cp"><div class="split"><h3>${o.what}</h3><span class="pill p-info">${o.stage}</span></div>
+        ${kvRows([
+          ["Customer", o.cust],
+          ["Value", money(o.val)],
+          ["AI score", `<b>${o.score}</b> / 100`],
+          ["Lock expires", o.lock],
+          ["Age", o.age],
+          ["Owner", "Amit Deshpande"],
+          ["Locked to", "Deshpande Technologies · exclusive"],
+        ])}
+        <h3 style="margin-top:16px">Stage progression</h3>
+        <div class="ms">
+          <div class="it done"><span class="dot"></span><div><b>Lead registered</b><small>04 Jun · locked</small></div></div>
+          <div class="it done"><span class="dot"></span><div><b>Qualification</b><small>08 Jun · BANT confirmed</small></div></div>
+          <div class="it done"><span class="dot"></span><div><b>Scoping call</b><small>15 Jun · Rohit Kale + customer CISO</small></div></div>
+          <div class="it now"><span class="dot"></span><div><b>${o.stage}</b><small>${o.age} in this stage</small></div></div>
+          <div class="it"><span class="dot"></span><div><b>Verbal commit</b><small>expected by ${o.lock}</small></div></div>
+          <div class="it"><span class="dot"></span><div><b>PO received</b><small>planned</small></div></div>
+        </div>
+        <div class="row" style="margin-top:14px">
+          ${linkBtn("partner","p-del","View my deliveries","btn-cp sm")}
+          <button class="btn-cp sm pri" onclick="window.__cp.toast('Follow-up logged','Reminder set for tomorrow 10:00')">Log follow-up</button>
+        </div>
+      </div>
+      <div class="stack">
+        <div class="card-cp"><h3>Activity</h3>
+          <div class="stack" style="font-size:12.5px">
+            ${feed("good","Proposal opened","2h ago · CFO + CISO on the same session")}
+            ${feed("info","Effort sizing complete","yesterday · 16 person-days · start 04 Aug")}
+            ${feed("info","Credit reserved","₹" + Math.round(o.val * 0.15).toLocaleString("en-IN") + " held against this deal")}
+            ${feed("warn","Competing quote flagged","Customer mentioned one other vendor on 18 Jul")}
+          </div>
+        </div>
+        <div class="card-cp"><h3>Next best action</h3>
+          <div class="note">Send the reference case for Meridian Fintech (same line, similar size) — 3 of 5 partners who did this at this stage closed within 9 days.</div>
+          <button class="btn-cp pri sm" style="margin-top:10px" onclick="window.__cp.toast('Reference shared','Meridian case study sent to ${o.cust} CISO')">Share reference case</button>
+        </div>
+      </div>
+    </div>`;
+  },
+
+  "c-enquire": ({ ctx }) => {
+    const catalog: Record<string, { name: string; price: string; scope: string; timeline: string }> = {
+      iso27001: { name: "ISO 27001 implementation", price: "₹9.80 L", scope: "Gap assessment, policy set, SoA, internal audit, Stage 1 & 2 audit", timeline: "12 – 14 weeks" },
+      siem: { name: "SIEM (managed)", price: "₹4.20 L / year", scope: "Log source onboarding, 24×7 monitoring, monthly reports", timeline: "3 weeks to go-live" },
+      email: { name: "Email security", price: "₹1.10 L / year", scope: "SPF/DKIM/DMARC hardening, phishing simulation, MX gateway rules", timeline: "10 working days" },
+    };
+    const s = catalog[ctx || "iso27001"] || catalog.iso27001;
+    return subhead("Enquire · " + s.name, "Your partner will respond within one working day", "client", "c-dash", "Overview") + `
+    <div class="grid-cp g21">
+      <div class="card-cp"><h3>Enquiry details</h3><div class="sub">Goes straight to Deshpande Technologies · Amit Deshpande.</div>
+        ${kvRows([["Service", s.name],["Indicative price", s.price],["Scope", s.scope],["Timeline", s.timeline],["Your partner", "Deshpande Technologies"],["Response SLA", "1 working day"]])}
+        <div style="margin-top:12px"><div class="k faint">Contact</div>
+          <div class="input" style="margin-top:6px">procurement@kohinoortextiles.in</div></div>
+        <div style="margin-top:12px"><div class="k faint">Message</div>
+          <div class="input" style="min-height:70px;margin-top:6px">We would like a formal proposal for ${s.name.toLowerCase()}. Please include timeline, dependencies from our side, and any prerequisites.</div></div>
+        <div class="row" style="margin-top:14px">
+          <button class="btn-cp pri" onclick="window.__cp.toast('Enquiry sent','Amit Deshpande notified · SLA 1 working day'); window.__cp.__go('/app/client/c-proj')">Send enquiry</button>
+          ${linkBtn("client","c-dash","Cancel","btn-cp sm")}
+        </div>
+      </div>
+      <div class="card-cp"><h3>What happens next</h3>
+        <div class="stack" style="font-size:12.5px">
+          ${feed("info","Partner receives enquiry","Amit Deshpande + firm inbox")}
+          ${feed("info","Effort sizing with Ops","Person-days and realistic start date")}
+          ${feed("good","Proposal to you","Within 1 working day · with the same reference case pattern")}
+          ${feed("warn","No credit consumed","Enquiring is free · credit reserves only when you accept")}
+        </div>
+      </div>
+    </div>`;
+  },
 };
+
 
 export function renderScreen(screen: string, role: RoleKey, ctx?: string): string {
   const r = V[screen];
