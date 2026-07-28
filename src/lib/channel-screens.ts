@@ -1279,16 +1279,31 @@ export function renderSidebar(role: RoleKey, screen: string): string {
 
 export function renderTopbar(role: RoleKey): string {
   const r = ROLES[role];
+  const c = store.counts();
+  const badge = (n: number) => n > 0 ? `<span class="ping">${n}</span>` : "";
+  const roleBadge =
+    role === "sales" ? badge(c.salesQueue) :
+    role === "ops" ? badge(c.opsQueue) :
+    role === "vendor" ? badge(c.vendorQueue) :
+    role === "delivery" ? badge(c.delivery) :
+    role === "accounts" ? badge(c.finance) :
+    role === "admin" ? badge(c.escalated) : "";
+  const partnerCTAs = role === "partner"
+    ? `<a class="btn-cp pri sm" href="/app/partner/p-add-client" style="margin-right:6px">+ Add client</a>
+       <a class="btn-cp sm" href="/app/partner/p-new-lead" style="margin-right:6px">+ Create lead</a>`
+    : "";
   return `
     <div class="lens">
       <div>
         <div class="lbl">Your workspace</div>
-        <div class="rec">${r.label} · ${r.who[1]}</div>
+        <div class="rec">${r.label} · ${r.who[1]}${roleBadge ? " · queue " + roleBadge : ""}</div>
       </div>
     </div>
     <div class="sp"></div>
+    ${partnerCTAs}
     <a class="ibtn" title="Notifications" href="/app/${role}/n-inbox">🔔<span class="ping">4</span></a>
     <a class="ibtn" title="Wire connections" href="/wire">◈</a>
     <button class="btn-cp sm" style="margin-left:8px" onclick="window.__cp.signOut()">Sign out</button>
   `;
 }
+
