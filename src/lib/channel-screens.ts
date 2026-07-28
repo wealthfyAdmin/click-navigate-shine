@@ -842,7 +842,402 @@ export const V: Record<string, Renderer> = {
       </div>
     </div>`;
   },
-};
+
+  // ==========================================================
+  // NEW END-TO-END FLOW SCREENS (store-driven)
+  // ==========================================================
+
+  // ---- PARTNER: add client ----
+  "p-add-client": () => {
+    const clients = store.clients();
+    return head("Add a new client", "Register a client under your firm. It shows up instantly in Sales, Ops and Admin dashboards.") + `
+    <div class="grid-cp g21">
+      <div class="card-cp"><h3>Client details</h3><div class="sub">All fields required. Stored in the shared workspace store.</div>
+        <div class="formgrid">
+          <label>Company name<input class="input" id="cli-name" placeholder="e.g. Sunbeam Chemicals"/></label>
+          <label>City<input class="input" id="cli-city" placeholder="e.g. Pune"/></label>
+          <label>Industry<select class="input" id="cli-ind">
+            <option>Manufacturing</option><option>Healthcare</option><option>Retail</option>
+            <option>Logistics</option><option>Fintech</option><option>Education</option><option>Other</option>
+          </select></label>
+          <label>Primary contact (email)<input class="input" id="cli-mail" placeholder="cio@example.com"/></label>
+        </div>
+        <div class="row" style="margin-top:14px">
+          <button class="btn-cp pri" onclick="window.__cp.addClient()">Add client &amp; continue →</button>
+          <a class="btn-cp sm" href="/app/partner/p-clients">Cancel</a>
+        </div>
+      </div>
+      <div class="card-cp"><h3>What happens next</h3>
+        <div class="stack" style="font-size:12.5px">
+          ${feed("good","Client registered under you","Visible in Sales coverage · Admin platform overview")}
+          ${feed("info","You can now create a lead","Redirected to 'Create lead' with client pre-selected")}
+          ${feed("warn","Lock &amp; deduplication","Sales verifies before any credit is reserved")}
+        </div>
+        <h3 style="margin-top:16px">My registered clients (${clients.length})</h3>
+        ${clients.slice(0, 5).map(c => `<div class="split" style="font-size:12px;padding:5px 0"><span><b>${c.name}</b> · <span class="faint">${c.city}</span></span><span class="pill p-mute">${c.id}</span></div>`).join("") || '<div class="faint">No clients yet.</div>'}
+      </div>
+    </div>`;
+  },
+
+  "p-clients": () => {
+    const clients = store.clients();
+    const leads = store.leads();
+    return head("My clients", "Every client you registered, and every lead attached to them.") + `
+    <div class="row" style="margin-bottom:12px">
+      <a class="btn-cp pri sm" href="/app/partner/p-add-client">+ Add client</a>
+      <a class="btn-cp sm" href="/app/partner/p-new-lead">+ Create lead</a>
+    </div>
+    <div class="card-cp">${table(
+      ["Client", "City", "Industry", "Contact", "Leads", "Registered", ""],
+      clients.map(c => {
+        const cnt = leads.filter(l => l.clientId === c.id).length;
+        return [
+          `<b>${c.name}</b>`, c.city, c.industry, `<span class="faint">${c.contact}</span>`,
+          `<span class="pill p-info">${cnt}</span>`, c.createdAt,
+          `<a class="btn-cp sm pri" href="/app/partner/p-new-lead?ctx=${c.id}">Create lead</a>`,
+        ];
+      })
+    )}</div>`;
+  },
+
+  "p-new-lead": ({ ctx }) => {
+    const clients = store.clients();
+    const preselect = ctx && clients.find(c => c.id === ctx) ? ctx : (clients[0]?.id ?? "");
+    return head("Create a new lead", "Sales verifies before it enters the pipeline. Nothing is lost between hand-offs.") + `
+    <div class="grid-cp g21">
+      <div class="card-cp"><h3>Lead details</h3><div class="sub">Pick a client, service line and expected value.</div>
+        <div class="formgrid">
+          <label>Client<select class="input" id="ld-client">
+            ${clients.map(c => `<option value="${c.id}" ${c.id === preselect ? "selected" : ""}>${c.name} · ${c.city}</option>`).join("")}
+          </select></label>
+          <label>Service line<select class="input" id="ld-line">
+            <option>Services · Red</option><option>Services · Purple</option>
+            <option>Tools · SI</option><option>Licence</option><option>Hardware</option><option>Staff aug</option>
+          </select></label>
+          <label style="grid-column:1/-1">Service<input class="input" id="ld-service" placeholder="e.g. Web & API VAPT for 3 apps"/></label>
+          <label>Expected value (₹)<input class="input" id="ld-val" type="number" placeholder="450000"/></label>
+          <label>Time to close<select class="input" id="ld-tt"><option>Within 2 weeks</option><option>2–4 weeks</option><option>1–3 months</option></select></label>
+        </div>
+        <div class="row" style="margin-top:14px">
+          <button class="btn-cp pri" onclick="window.__cp.createLead()">Submit for sales verification →</button>
+          <a class="btn-cp sm" href="/app/partner/p-clients">Cancel</a>
+        </div>
+        ${clients.length === 0 ? `<div class="note" style="margin-top:12px;border-color:var(--warn)">No clients yet. <a href="/app/partner/p-add-client">Add a client</a> first.</div>` : ""}
+      </div>
+      <div class="card-cp"><h3>Flow after submit</h3>
+        <div class="stack" style="font-size:12.5px">
+          ${feed("info","Status: Pending sales verify","Appears in Sales dashboard queue immediately")}
+          ${feed("good","Approved →","Ops picks up, assigns internal team OR routes to vendor")}
+          ${feed("info","Delivery tracks","Effort, evidence, testing complete")}
+          ${feed("warn","Accounts → Admin","Invoice approved and double-verified before payout")}
+        </div>
+      </div>
+    </div>`;
+  },
+
+  // ---- SALES: verify partner leads ----
+  "s-verify": () => {
+    const pending = store.leads().filter(l => l.status === "pending_sales");
+    const recent = store.leads().filter(l => l.status !== "pending_sales").slice(0, 5);
+    return head("Lead verification", "Every partner lead lands here first. Approve to send to Ops, or reject with a reason.") + `
+    <div class="grid-cp g4">
+      ${kpi("Pending", String(pending.length), "awaiting your review")}
+      ${kpi("Approved today", String(store.leads().filter(l => l.status !== "pending_sales" && l.status !== "rejected_sales").length), "routed to Ops")}
+      ${kpi("Rejected", String(store.leads().filter(l => l.status === "rejected_sales").length), "sent back to partner")}
+      ${kpi("Ready for pickup", String(store.counts().opsQueue), "with Ops assignment queue")}
+    </div>
+    <div class="card-cp" style="margin-top:14px"><h3>Pending verification (${pending.length})</h3>
+    ${pending.length ? table(
+      ["Lead", "Client", "Service", "Value", "Partner", "Submitted", ""],
+      pending.map(l => [
+        `<span class="mono">${l.id}</span>`, `<b>${l.clientName}</b>`, l.service, money(l.value), l.partner, l.createdAt,
+        `<a class="btn-cp pri sm" href="/app/sales/s-verify-detail?ctx=${l.id}">Open</a>`,
+      ])
+    ) : `<div class="note">Nothing to verify. Partner-created leads will appear here in real time.</div>`}
+    </div>
+    ${recent.length ? `<div class="card-cp" style="margin-top:14px"><h3>Recent decisions</h3>
+      ${table(["Lead","Client","Status","Note"], recent.map(l => [
+        `<span class="mono">${l.id}</span>`, l.clientName,
+        `<span class="pill ${STATUS_PILL[l.status]}">${STATUS_LABEL[l.status]}</span>`,
+        l.note || "—",
+      ]))}</div>` : ""}`;
+  },
+
+  "s-verify-detail": ({ ctx }) => {
+    const l = store.lead(ctx || "");
+    if (!l) return subhead("Lead not found", "It may have been resolved already.", "sales", "s-verify", "Lead verification");
+    const c = store.client(l.clientId);
+    return subhead("Verify lead", `${l.id} · ${l.clientName}`, "sales", "s-verify", "Lead verification") + `
+    <div class="grid-cp g21">
+      <div class="card-cp"><h3>Lead details</h3>
+        ${kvRows([
+          ["Lead", `<span class="mono">${l.id}</span>`],
+          ["Client", l.clientName],
+          ["City / industry", c ? `${c.city} · ${c.industry}` : "—"],
+          ["Contact", c?.contact ?? "—"],
+          ["Service", l.service],
+          ["Line", l.line],
+          ["Value", money(l.value)],
+          ["Partner", l.partner],
+          ["Submitted", l.createdAt],
+          ["Status", `<span class="pill ${STATUS_PILL[l.status]}">${STATUS_LABEL[l.status]}</span>`],
+        ])}
+        ${l.status === "pending_sales" ? `<div class="row" style="margin-top:14px">
+          <button class="btn-cp pri" onclick="window.__cp.approveLead('${l.id}')">Approve &amp; route to Ops →</button>
+          <button class="btn-cp danger" onclick="window.__cp.rejectLead('${l.id}')">Reject</button>
+          <a class="btn-cp sm" href="/app/sales/s-verify">Back</a>
+        </div>` : `<div class="note" style="margin-top:14px">This lead is already ${STATUS_LABEL[l.status].toLowerCase()}.</div>`}
+      </div>
+      <div class="card-cp"><h3>Checks</h3>
+        <div class="stack" style="font-size:12.5px">
+          ${feed("good","Partner locked to client","No overlap with other partners")}
+          ${feed("info","Value within slab","₹${l.value.toLocaleString('en-IN')} sits inside partner's tier")}
+          ${feed("warn","Effort sizing pending","Ops will attach person-days after approval")}
+        </div>
+      </div>
+    </div>`;
+  },
+
+  // ---- OPS: assign approved leads ----
+  "o-assign": () => {
+    const queue = store.leads().filter(l => l.status === "approved_ops" || l.status === "vendor_declined");
+    const inflight = store.leads().filter(l => l.status === "with_vendor" || l.status === "assigned" || l.status === "in_delivery");
+    return head("Lead assignment", "Approved leads from Sales. Assign an internal team or route to a vendor.") + `
+    <div class="grid-cp g4">
+      ${kpi("To assign", String(queue.length), "approved by Sales")}
+      ${kpi("With vendor", String(store.counts().vendorQueue), "awaiting accept")}
+      ${kpi("In delivery", String(store.counts().delivery), "internal + vendor")}
+      ${kpi("Team available", "3", "consultants below 85% util")}
+    </div>
+    <div class="card-cp" style="margin-top:14px"><h3>To assign (${queue.length})</h3>
+    ${queue.length ? table(
+      ["Lead","Client","Service","Value","Partner","",""],
+      queue.map(l => [
+        `<span class="mono">${l.id}</span>`, `<b>${l.clientName}</b>`, l.service, money(l.value), l.partner,
+        `<a class="btn-cp pri sm" href="/app/ops/o-assign-detail?ctx=${l.id}">Assign</a>`,
+        `<span class="pill ${STATUS_PILL[l.status]}">${STATUS_LABEL[l.status]}</span>`,
+      ])
+    ) : `<div class="note">Empty queue — verified leads from Sales will appear here.</div>`}
+    </div>
+    ${inflight.length ? `<div class="card-cp" style="margin-top:14px"><h3>In flight</h3>
+      ${table(["Lead","Client","Owner","Status"], inflight.map(l => [
+        `<span class="mono">${l.id}</span>`, l.clientName,
+        l.vendor || l.assignee || "—",
+        `<span class="pill ${STATUS_PILL[l.status]}">${STATUS_LABEL[l.status]}</span>`,
+      ]))}</div>` : ""}`;
+  },
+
+  "o-assign-detail": ({ ctx }) => {
+    const l = store.lead(ctx || "");
+    if (!l) return subhead("Lead not found", "", "ops", "o-assign", "Lead assignment");
+    const consultants = ["Sneha Patil", "Imran Qureshi", "Priya Nair", "Ajay Bhosale", "Kabir Shaikh"];
+    const vendors = ["Lumiverse OEM · Red-team", "Zenith Networks · Cloud", "SecureWave Labs · Compliance"];
+    return subhead("Assign lead", `${l.id} · ${l.clientName}`, "ops", "o-assign", "Lead assignment") + `
+    <div class="grid-cp g2">
+      <div class="card-cp"><h3>Option A · Assign internal team</h3><div class="sub">Pick a consultant. Utilisation calendar updates automatically.</div>
+        <label style="display:block;margin-top:8px">Consultant<select class="input" id="assign-who">
+          ${consultants.map(c => `<option>${c}</option>`).join("")}
+        </select></label>
+        <div class="row" style="margin-top:14px">
+          <button class="btn-cp pri" onclick="window.__cp.assignInternal('${l.id}')">Assign internal →</button>
+        </div>
+        ${kvRows([["Service", l.service],["Value", money(l.value)],["Partner", l.partner]])}
+      </div>
+      <div class="card-cp"><h3>Option B · Route to vendor</h3><div class="sub">Use when we lack in-house capacity or the certification.</div>
+        <label style="display:block;margin-top:8px">Vendor<select class="input" id="assign-vendor">
+          ${vendors.map(v => `<option>${v}</option>`).join("")}
+        </select></label>
+        <div class="row" style="margin-top:14px">
+          <button class="btn-cp pri" onclick="window.__cp.routeVendor('${l.id}')">Route to vendor →</button>
+        </div>
+        <div class="note" style="margin-top:12px">Vendor sees the job in their inbox and accepts or declines within 24h.</div>
+      </div>
+    </div>`;
+  },
+
+  // ---- VENDOR: routed job inbox ----
+  "v-jobs": () => {
+    const inbox = store.leads().filter(l => l.status === "with_vendor");
+    const inflight = store.leads().filter(l => l.status === "in_delivery" && l.vendor);
+    return head("Routed jobs", "Jobs Ops routed to your firm. Accept to take them into delivery.") + `
+    <div class="grid-cp g4">
+      ${kpi("Inbox", String(inbox.length), "awaiting your accept")}
+      ${kpi("In delivery", String(inflight.length), "your active jobs")}
+      ${kpi("SLA", "24h", "to accept or decline")}
+      ${kpi("Success rate", "94%", "last 30 days")}
+    </div>
+    <div class="card-cp" style="margin-top:14px"><h3>Inbox</h3>
+    ${inbox.length ? table(
+      ["Lead","Client","Service","Value","Routed by",""],
+      inbox.map(l => [
+        `<span class="mono">${l.id}</span>`, `<b>${l.clientName}</b>`, l.service, money(l.value), "Ops · Rohit Kale",
+        `<a class="btn-cp pri sm" href="/app/vendor/v-job-detail?ctx=${l.id}">Review</a>`,
+      ])
+    ) : `<div class="note">No routed jobs. Ops will send jobs here when they need external delivery.</div>`}
+    </div>
+    ${inflight.length ? `<div class="card-cp" style="margin-top:14px"><h3>Active jobs</h3>
+      ${table(["Lead","Client","Service","Status"], inflight.map(l => [
+        `<span class="mono">${l.id}</span>`, l.clientName, l.service, `<span class="pill ${STATUS_PILL[l.status]}">${STATUS_LABEL[l.status]}</span>`,
+      ]))}</div>` : ""}`;
+  },
+
+  "v-job-detail": ({ ctx }) => {
+    const l = store.lead(ctx || "");
+    if (!l) return subhead("Job not found", "", "vendor", "v-jobs", "Routed jobs");
+    return subhead("Review job", `${l.id} · ${l.clientName}`, "vendor", "v-jobs", "Routed jobs") + `
+    <div class="grid-cp g21">
+      <div class="card-cp"><h3>Job details</h3>
+        ${kvRows([
+          ["Lead", `<span class="mono">${l.id}</span>`],
+          ["Client", l.clientName],
+          ["Service", l.service],
+          ["Line", l.line],
+          ["Value (transfer)", money(Math.round(l.value * 0.7))],
+          ["Customer MRP", money(l.value)],
+          ["Vendor", l.vendor || "—"],
+          ["Status", `<span class="pill ${STATUS_PILL[l.status]}">${STATUS_LABEL[l.status]}</span>`],
+        ])}
+        ${l.status === "with_vendor" ? `<div class="row" style="margin-top:14px">
+          <button class="btn-cp pri" onclick="window.__cp.vendorAccept('${l.id}')">Accept &amp; start delivery →</button>
+          <button class="btn-cp danger" onclick="window.__cp.vendorDecline('${l.id}')">Decline</button>
+        </div>` : `<div class="note" style="margin-top:14px">Job already ${STATUS_LABEL[l.status].toLowerCase()}.</div>`}
+      </div>
+      <div class="card-cp"><h3>SoW summary</h3>
+        <div class="stack" style="font-size:12.5px">
+          ${feed("info","Scope",l.service)}
+          ${feed("info","Milestones","Auto-generated on accept · aligned to catalogue")}
+          ${feed("good","Payment","On completion + Accounts verification")}
+        </div>
+      </div>
+    </div>`;
+  },
+
+  // ---- DELIVERY: live jobs from store ----
+  "d-track": () => {
+    const mine = store.leads().filter(l => l.status === "assigned" || l.status === "in_delivery");
+    return head("Live jobs", "Assignments coming out of the shared pipeline. Log time, mark complete.") + `
+    <div class="grid-cp g4">
+      ${kpi("Assigned to me", String(mine.length), "internal + vendor")}
+      ${kpi("Completed today", String(store.leads().filter(l => l.status === "completed" || l.status === "invoiced").length), "invoice raised on Accounts")}
+      ${kpi("Effort booked", "18 pd", "of 24 available this week")}
+      ${kpi("Overdue", "0", "on my plate")}
+    </div>
+    <div class="card-cp" style="margin-top:14px">
+    ${mine.length ? table(
+      ["Lead","Client","Service","Owner","Status",""],
+      mine.map(l => [
+        `<span class="mono">${l.id}</span>`, `<b>${l.clientName}</b>`, l.service, l.assignee || l.vendor || "—",
+        `<span class="pill ${STATUS_PILL[l.status]}">${STATUS_LABEL[l.status]}</span>`,
+        `<button class="btn-cp pri sm" onclick="window.__cp.completeLead('${l.id}')">Mark completed</button>`,
+      ])
+    ) : `<div class="note">No live jobs yet. When Ops assigns you a job it appears here.</div>`}
+    </div>`;
+  },
+
+  // ---- ACCOUNTS: invoice approval queue ----
+  "a-approve": () => {
+    const pending = store.invoices().filter(i => i.status === "pending_approval");
+    const escalated = store.invoices().filter(i => i.status === "escalated");
+    const approved = store.invoices().filter(i => i.status === "approved");
+    return head("Invoice approvals", "Every completed delivery raises an invoice here. Approve to send to Admin for double-verification.") + `
+    <div class="grid-cp g4">
+      ${kpi("Pending approval", String(pending.length), "invoices from delivery")}
+      ${kpi("Escalated", String(escalated.length), "with Admin for double-verify")}
+      ${kpi("Approved", String(approved.length), "flow closed")}
+      ${kpi("Rejected", String(store.invoices().filter(i => i.status === "rejected").length), "sent back")}
+    </div>
+    <div class="card-cp" style="margin-top:14px"><h3>Pending approval (${pending.length})</h3>
+    ${pending.length ? table(
+      ["Invoice","Client","Amount","Raised","Lead",""],
+      pending.map(i => [
+        `<span class="mono">${i.id}</span>`, `<b>${i.clientName}</b>`, money(i.amount), i.createdAt,
+        i.leadId ? `<span class="mono">${i.leadId}</span>` : "—",
+        `<a class="btn-cp pri sm" href="/app/accounts/a-approve-detail?ctx=${i.id}">Review</a>`,
+      ])
+    ) : `<div class="note">Empty. New invoices show up here the moment Delivery marks a job complete.</div>`}
+    </div>
+    ${escalated.length ? `<div class="card-cp" style="margin-top:14px"><h3>Escalated to Admin (${escalated.length})</h3>
+      ${table(["Invoice","Client","Amount","Status"], escalated.map(i => [
+        `<span class="mono">${i.id}</span>`, i.clientName, money(i.amount),
+        `<span class="pill p-warn">${i.status}</span>`,
+      ]))}</div>` : ""}`;
+  },
+
+  "a-approve-detail": ({ ctx }) => {
+    const i = store.invoice(ctx || "");
+    if (!i) return subhead("Invoice not found", "", "accounts", "a-approve", "Invoice approvals");
+    const l = i.leadId ? store.lead(i.leadId) : null;
+    return subhead("Verify invoice", `${i.id} · ${i.clientName}`, "accounts", "a-approve", "Invoice approvals") + `
+    <div class="grid-cp g21">
+      <div class="card-cp"><h3>Invoice details</h3>
+        ${kvRows([
+          ["Invoice", `<span class="mono">${i.id}</span>`],
+          ["Client", i.clientName],
+          ["Amount", `<b>${money(i.amount)}</b>`],
+          ["GST 18%", money(Math.round(i.amount * 0.18))],
+          ["Total", `<b style="color:var(--brand)">${money(Math.round(i.amount * 1.18))}</b>`],
+          ["Raised", i.createdAt],
+          ["Lead ref", l ? `<span class="mono">${l.id}</span> · ${l.service}` : "—"],
+          ["Delivered by", l?.assignee || l?.vendor || "—"],
+          ["Status", `<span class="pill ${i.status === "pending_approval" ? "p-warn" : i.status === "escalated" ? "p-info" : i.status === "approved" ? "p-good" : "p-bad"}">${i.status}</span>`],
+        ])}
+        ${i.status === "pending_approval" ? `<div class="row" style="margin-top:14px">
+          <button class="btn-cp pri" onclick="window.__cp.approveInvoice('${i.id}')">Approve → send to Admin for double-verify</button>
+          <button class="btn-cp danger" onclick="window.__cp.rejectInvoice('${i.id}')">Reject</button>
+        </div>` : `<div class="note" style="margin-top:14px">Already ${i.status}. ${i.status === "escalated" ? "Admin will confirm." : ""}</div>`}
+      </div>
+      <div class="card-cp"><h3>Escalation policy</h3>
+        <div class="stack" style="font-size:12.5px">
+          ${feed("info","Two-eyes principle","Every approval goes to Admin for confirmation")}
+          ${feed("good","Below ₹1 L","24h admin SLA")}
+          ${feed("warn","Above ₹5 L","Requires COO sign-off note")}
+          ${feed("bad","Reject","Returns to Delivery with reason")}
+        </div>
+      </div>
+    </div>`;
+  },
+
+  // ---- ADMIN: flow audit + finance double-verify ----
+  "x-audit": () => {
+    const t = store.timeline();
+    return head("Flow audit", "Every state change across every role. This is your one source of truth.") + `
+    <div class="card-cp"><h3>Timeline (${t.length})</h3><div class="sub">Newest first · persistent across sessions.</div>
+    ${t.length ? `<div style="max-height:600px;overflow:auto">${table(
+      ["When","Actor","Ref","Event"],
+      t.map(x => [
+        new Date(x.t).toLocaleString("en-IN", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }),
+        x.actor,
+        `<span class="mono">${x.refId}</span>`,
+        `<span class="pill ${x.kind === "good" ? "p-good" : x.kind === "warn" ? "p-warn" : x.kind === "bad" ? "p-bad" : "p-info"}">${x.event}</span>`,
+      ])
+    )}</div>` : `<div class="note">Empty. As people work, entries appear here.</div>`}
+    <div class="row" style="margin-top:14px">
+      <button class="btn-cp danger sm" onclick="window.__cp.resetStore()">Reset workspace store</button>
+      <span class="faint">Only affects the shared temp store. Original demo data is unchanged.</span>
+    </div></div>`;
+  },
+
+  "x-verify": () => {
+    const escalated = store.invoices().filter(i => i.status === "escalated");
+    const approved = store.invoices().filter(i => i.status === "approved");
+    return head("Finance verification", "Accounts approved these. Confirm to close the flow.") + `
+    <div class="grid-cp g4">
+      ${kpi("To confirm", String(escalated.length), "escalated by Accounts")}
+      ${kpi("Confirmed", String(approved.length), "flow closed")}
+      ${kpi("Rejected", "0", "sent back")}
+      ${kpi("Avg turnaround", "3h 20m", "target 24h")}
+    </div>
+    <div class="card-cp" style="margin-top:14px"><h3>Awaiting double-verification (${escalated.length})</h3>
+    ${escalated.length ? table(
+      ["Invoice","Client","Amount","Approved by",""],
+      escalated.map(i => [
+        `<span class="mono">${i.id}</span>`, `<b>${i.clientName}</b>`, money(i.amount), "Meera Joshi · Accounts",
+        `<button class="btn-cp pri sm" onclick="window.__cp.confirmInvoice('${i.id}')">Confirm &amp; close</button>`,
+      ])
+    ) : `<div class="note">Empty. Accounts sends invoices here after their approval.</div>`}
+    </div>`;
+  },
+
 
 
 export function renderScreen(screen: string, role: RoleKey, ctx?: string): string {
