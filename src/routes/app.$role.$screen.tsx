@@ -43,6 +43,7 @@ function AppScreen() {
 
   // Session gate: only the signed-in role can see its own pages.
   const [ready, setReady] = useState(false);
+  const [tick, setTick] = useState(0);
   useEffect(() => {
     const s = getRole();
     if (!s) { nav({ to: "/" }); return; }
@@ -53,18 +54,21 @@ function AppScreen() {
     setReady(true);
   }, [roleKey, nav]);
 
+  // Subscribe to shared store — re-render on any cross-role mutation.
+  useEffect(() => store.subscribe(() => setTick(t => t + 1)), []);
+
   // Install action handlers once; refresh = re-run loader / re-render.
   useEffect(() => {
     const go = (href: string) => { (router as any).history.push(href); };
-    installActions(() => router.invalidate(), go);
+    installActions(() => { router.invalidate(); setTick(t => t + 1); }, go);
     (window as any).__cp = (window as any).__cp || {};
     (window as any).__cp.signOut = () => { signOut(); nav({ to: "/" }); };
     (window as any).__cp.__go = go;
   }, [router, nav]);
 
-  const html = useMemo(() => renderScreen(screen, roleKey, ctx), [screen, roleKey, ctx]);
-  const sidebar = useMemo(() => renderSidebar(roleKey, screen), [roleKey, screen]);
-  const topbar = useMemo(() => renderTopbar(roleKey), [roleKey]);
+  const html = useMemo(() => renderScreen(screen, roleKey, ctx), [screen, roleKey, ctx, tick]);
+  const sidebar = useMemo(() => renderSidebar(roleKey, screen), [roleKey, screen, tick]);
+  const topbar = useMemo(() => renderTopbar(roleKey), [roleKey, tick]);
 
   if (!ready) return null;
 
