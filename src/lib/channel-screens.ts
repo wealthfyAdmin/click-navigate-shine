@@ -1237,6 +1237,9 @@ export const V: Record<string, Renderer> = {
     ) : `<div class="note">Empty. Accounts sends invoices here after their approval.</div>`}
     </div>`;
   },
+};
+
+
 
 
 
