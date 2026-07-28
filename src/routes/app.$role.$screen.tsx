@@ -10,6 +10,7 @@ import { ROLES, SCREEN_TITLES, S, type RoleKey } from "@/lib/channel-data";
 import { renderScreen, renderSidebar, renderTopbar } from "@/lib/channel-screens";
 import { installActions } from "@/lib/channel-actions";
 import { firstScreenOf, getRole, signOut } from "@/lib/auth";
+import { store } from "@/lib/store";
 
 const searchSchema = z.object({ ctx: z.string().optional() });
 
