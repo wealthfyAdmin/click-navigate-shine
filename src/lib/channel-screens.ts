@@ -3,6 +3,7 @@
 // Nav happens via <Link> on the shell; in-page action buttons call window.__cp.* handlers.
 
 import { S, ROLES, money, lakh, prj, type RoleKey } from "./channel-data";
+import { store, STATUS_LABEL, STATUS_PILL, type LeadStatus } from "./store";
 
 const head = (t: string, s: string) =>
   `<div class="phead"><div><h1>${t}</h1><p>${s}</p></div><div class="sp"></div></div>`;
