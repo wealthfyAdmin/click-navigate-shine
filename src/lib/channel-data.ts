@@ -173,20 +173,25 @@ export const SCREEN_TITLES: Record<string, string> = {
   "p-dash": "Partner · Dashboard", "p-pipe": "Partner · Pipeline", "p-del": "Partner · Deliveries",
   "p-earn": "Partner · Earnings", "p-score": "Partner · Scorecard",
   "p-escalate": "Partner · Raise escalation",
+  "p-add-client": "Partner · Add client", "p-new-lead": "Partner · Create lead", "p-clients": "Partner · My clients",
   "s-cov": "Sales · Coverage", "s-qual": "Sales · Quality board",
   "s-suspend": "Sales · Suspend allocation", "s-coach": "Sales · Assign coaching",
+  "s-verify": "Sales · Lead verification", "s-verify-detail": "Sales · Verify lead",
   "o-board": "Ops · Delivery board", "o-unalloc": "Ops · Unallocated wins", "o-proj": "Ops · Project detail",
   "o-res": "Ops · Resources", "o-esc": "Ops · Escalations", "o-raise-l3": "Ops · Raise to L3",
+  "o-assign": "Ops · Lead assignment", "o-assign-detail": "Ops · Assign lead",
   "d-assign": "Delivery · Assignments", "d-effort": "Delivery · Effort", "d-report": "Delivery · Report",
+  "d-track": "Delivery · Live jobs",
   "a-inv": "Accounts · Invoices", "a-cred": "Accounts · Credit ledger", "a-pay": "Accounts · Payout run",
   "a-chase": "Accounts · Chase overdue", "a-raise": "Accounts · Raise invoice", "a-invdetail": "Accounts · Invoice detail",
+  "a-approve": "Accounts · Invoice approvals", "a-approve-detail": "Accounts · Verify invoice",
   "d-log": "Delivery · Log time", "d-complete": "Delivery · Request report",
   "c-dash": "Client · Overview", "c-proj": "Client · Projects", "c-enquire": "Client · Enquire",
   "x-over": "Admin · Platform overview", "x-exc": "Admin · Exceptions",
-  "v-cat": "Vendor · Catalogue",
+  "x-audit": "Admin · Flow audit", "x-verify": "Admin · Finance verification",
+  "v-cat": "Vendor · Catalogue", "v-jobs": "Vendor · Routed jobs", "v-job-detail": "Vendor · Job detail",
   "p-track": "Partner · Track deal",
   "n-inbox": "Notifications",
-
 };
 
 export const money = (n: number | string) => typeof n === "string" ? n : "₹" + n.toLocaleString("en-IN");
