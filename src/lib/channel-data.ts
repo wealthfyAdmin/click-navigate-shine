@@ -139,24 +139,28 @@ export type RoleKey = "partner" | "sales" | "ops" | "delivery" | "accounts" | "c
 
 export const ROLES: Record<RoleKey, { label: string; who: [string, string, string]; nav: [string, [string, string, number?][]][] }> = {
   partner: { label: "Partner", who: ["AD", "Amit Deshpande", "Deshpande Technologies · Gold"], nav: [
-    ["Sell", [["p-dash", "Dashboard"], ["p-pipe", "Leads & pipeline"]]],
+    ["Sell", [["p-dash", "Dashboard"], ["p-pipe", "Leads & pipeline"], ["p-add-client", "Add client", 1], ["p-new-lead", "Create lead", 1], ["p-clients", "My clients", 1]]],
     ["Deliver", [["p-del", "My deliveries", 1]]],
     ["Earn", [["p-earn", "Earnings & payouts", 1], ["p-score", "My scorecard", 1]]] ]},
   sales: { label: "Sales", who: ["SK", "Suresh Kadam", "Channel Sales · West"], nav: [
+    ["Verify", [["s-verify", "Lead verification", 1]]],
     ["Coverage", [["s-cov", "Partner coverage"]]],
     ["Queues", [["s-qual", "Partner quality board", 1]]] ]},
   ops: { label: "Ops / PM", who: ["RK", "Rohit Kale", "Operations & delivery"], nav: [
+    ["Assign", [["o-assign", "Lead assignment", 1]]],
     ["Delivery", [["o-board", "Delivery board", 1], ["o-unalloc", "Unallocated wins", 1], ["o-proj", "Project detail", 1]]],
     ["Capacity", [["o-res", "Resource calendar", 1], ["o-esc", "Escalations", 1]]] ]},
   delivery: { label: "Delivery", who: ["SP", "Sneha Patil", "Senior consultant · AppSec"], nav: [
-    ["My work", [["d-assign", "My assignments", 1], ["d-effort", "Effort & evidence", 1], ["d-report", "Report workspace", 1]]] ]},
+    ["My work", [["d-assign", "My assignments", 1], ["d-track", "Live jobs", 1], ["d-effort", "Effort & evidence", 1], ["d-report", "Report workspace", 1]]] ]},
   accounts: { label: "Accounts", who: ["MJ", "Meera Joshi", "Finance & billing"], nav: [
+    ["Approval", [["a-approve", "Invoice approvals", 1]]],
     ["Billing", [["a-inv", "Invoice queue", 1], ["a-cred", "Credit ledger", 1], ["a-pay", "Payout run", 1]]] ]},
   client: { label: "Client", who: ["KT", "Kohinoor Textiles", "Nashik · manufacturing"], nav: [
     ["My account", [["c-dash", "Overview"], ["c-proj", "My projects", 1]]] ]},
   admin: { label: "Admin", who: ["PW", "Platform admin", "Lumiverse Solutions"], nav: [
-    ["Platform", [["x-over", "Platform overview"], ["x-exc", "Exceptions queue", 1]]] ]},
+    ["Platform", [["x-over", "Platform overview"], ["x-audit", "Flow audit", 1], ["x-verify", "Finance verification", 1], ["x-exc", "Exceptions queue", 1]]] ]},
   vendor: { label: "Vendor", who: ["VN", "Vendor / OEM", "Catalogue owner"], nav: [
+    ["Jobs", [["v-jobs", "Routed jobs", 1]]],
     ["Catalogue", [["v-cat", "Catalogue & pricing"]]] ]},
 };
 
@@ -169,20 +173,25 @@ export const SCREEN_TITLES: Record<string, string> = {
   "p-dash": "Partner · Dashboard", "p-pipe": "Partner · Pipeline", "p-del": "Partner · Deliveries",
   "p-earn": "Partner · Earnings", "p-score": "Partner · Scorecard",
   "p-escalate": "Partner · Raise escalation",
+  "p-add-client": "Partner · Add client", "p-new-lead": "Partner · Create lead", "p-clients": "Partner · My clients",
   "s-cov": "Sales · Coverage", "s-qual": "Sales · Quality board",
   "s-suspend": "Sales · Suspend allocation", "s-coach": "Sales · Assign coaching",
+  "s-verify": "Sales · Lead verification", "s-verify-detail": "Sales · Verify lead",
   "o-board": "Ops · Delivery board", "o-unalloc": "Ops · Unallocated wins", "o-proj": "Ops · Project detail",
   "o-res": "Ops · Resources", "o-esc": "Ops · Escalations", "o-raise-l3": "Ops · Raise to L3",
+  "o-assign": "Ops · Lead assignment", "o-assign-detail": "Ops · Assign lead",
   "d-assign": "Delivery · Assignments", "d-effort": "Delivery · Effort", "d-report": "Delivery · Report",
+  "d-track": "Delivery · Live jobs",
   "a-inv": "Accounts · Invoices", "a-cred": "Accounts · Credit ledger", "a-pay": "Accounts · Payout run",
   "a-chase": "Accounts · Chase overdue", "a-raise": "Accounts · Raise invoice", "a-invdetail": "Accounts · Invoice detail",
+  "a-approve": "Accounts · Invoice approvals", "a-approve-detail": "Accounts · Verify invoice",
   "d-log": "Delivery · Log time", "d-complete": "Delivery · Request report",
   "c-dash": "Client · Overview", "c-proj": "Client · Projects", "c-enquire": "Client · Enquire",
   "x-over": "Admin · Platform overview", "x-exc": "Admin · Exceptions",
-  "v-cat": "Vendor · Catalogue",
+  "x-audit": "Admin · Flow audit", "x-verify": "Admin · Finance verification",
+  "v-cat": "Vendor · Catalogue", "v-jobs": "Vendor · Routed jobs", "v-job-detail": "Vendor · Job detail",
   "p-track": "Partner · Track deal",
   "n-inbox": "Notifications",
-
 };
 
 export const money = (n: number | string) => typeof n === "string" ? n : "₹" + n.toLocaleString("en-IN");
